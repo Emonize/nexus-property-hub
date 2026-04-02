@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +23,36 @@ export async function POST(request: NextRequest) {
     }
 
     // ==========================================
-    // PRODUCTION: Real Gemini 1.5 Pro execution
+    // AUTHENTICATED CONTEXT RESOLUTION
     // ==========================================
-    const systemInstruction = `You are the Rentova AI Copilot, a friendly, human-like, and highly enthusiastic property management assistant. You speak with a warm, conversational, and approachable tone—never robotic or overly corporate. You use emojis naturally. Format your responses beautifully using markdown. Your job is to help the property manager analyze rent rolls, draft tenant emails, and manage their portfolio while feeling like a supportive human coworker. Keep responses concise unless asked to draft a document.`;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized AI Access Context' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .single();
+
+    const role = profile?.role || 'tenant';
+    const userName = profile?.full_name || 'User';
+
+    // ==========================================
+    // POLYMORPHIC SYSTEM PROMPT BOUNDARIES
+    // ==========================================
+    let systemInstruction = '';
+    
+    if (role === 'owner' || role === 'manager' || role === 'admin') {
+      systemInstruction = `You are the Rentova AI Copilot, a highly capable Property Management Assistant. You are assisting ${userName}, who is a Property Manager/Owner. Your job is to help them analyze rent rolls, draft notices, manage their portfolio, and track financial metrics. You speak with a warm, professional, but clear tone. Keep responses concise unless asked to draft a formal document.`;
+    } else if (role === 'vendor') {
+      systemInstruction = `You are the Rentova Vendor Dispatch AI. You are assisting ${userName}, a contracted service professional. Your job is to help them manage their work orders, understand maintenance requirements, and track payout timelines. YOU MUST STRICTLY REFUSE any questions related to property ownership, tenant screening, or global financial tracking. Be highly tactical and direct.`;
+    } else {
+      systemInstruction = `You are the Rentova Tenant Support Agent. You are assisting ${userName}, a valued resident. Your job is to strictly help them understand their lease obligations, format maintenance requests, or explain basic rental portals. YOU MUST STRICTLY REFUSE to answer questions about property management, investments, other tenants, background checks, or landlord analytics. You are a helpful, polite customer service assistant.`;
+    }
 
     // Map messages specifically to Gemini's format: 'user' or 'model'
     const formattedHistory = messages.map((m: any) => ({

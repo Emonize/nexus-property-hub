@@ -124,7 +124,7 @@ export default function Sidebar({ role }: { role: string }) {
         </button>
       </div>
 
-      <CopilotDrawer isOpen={isCopilotOpen} onClose={() => setIsCopilotOpen(false)} />
+      <CopilotDrawer role={role} isOpen={isCopilotOpen} onClose={() => setIsCopilotOpen(false)} />
     </aside>
   );
 }

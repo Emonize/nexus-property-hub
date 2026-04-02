@@ -6,6 +6,7 @@ import { X, Send, Bot, User, Sparkles } from 'lucide-react';
 interface CopilotDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  role?: string;
 }
 
 interface Message {
@@ -14,9 +15,22 @@ interface Message {
   content: string;
 }
 
-export default function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
+export default function CopilotDrawer({ isOpen, onClose, role = 'owner' }: CopilotDrawerProps) {
+  
+  const getGreeting = () => {
+    if (role === 'vendor') return "Hello! I am your **Vendor Dispatch AI**. I can help you locate jobs and estimate payouts.";
+    if (role === 'tenant') return "Hello! I am your **Tenant Support Agent**. I can help you understand your lease and request service.";
+    return "Hello! I am your **Rentova AI Copilot**. How can I help you manage your portfolio today?";
+  };
+
+  const getTitle = () => {
+    if (role === 'vendor') return "Vendor Dispatch AI";
+    if (role === 'tenant') return "Tenant Support Agent";
+    return "Rentova Copilot";
+  };
+
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: 'Hello! I am your **Rentova AI Copilot**. How can I help you manage your portfolio today?' }
+    { id: '1', role: 'assistant', content: getGreeting() }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +98,7 @@ export default function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
               <Sparkles size={18} />
             </div>
             <div>
-              <h2 style={{ fontWeight: 600, fontSize: 16 }}>Rentova Copilot</h2>
+              <h2 style={{ fontWeight: 600, fontSize: 16 }}>{getTitle()}</h2>
               <span style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>Gemini 2.5 Flash</span>
             </div>
           </div>
