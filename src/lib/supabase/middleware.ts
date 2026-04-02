@@ -46,10 +46,9 @@ export async function updateSession(request: NextRequest) {
     const isDemoAccess = request.nextUrl.pathname === '/dashboard' && request.nextUrl.searchParams.get('demo') === 'true';
 
     if (!user && isProtected && !isDemoAccess) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/auth/login';
-      url.searchParams.set('redirect', request.nextUrl.pathname);
-      return NextResponse.redirect(url);
+      const isProd = process.env.NODE_ENV === 'production';
+      const safeOrigin = process.env.NEXT_PUBLIC_APP_URL || (isProd ? 'https://nexus-property-hub.vercel.app' : request.nextUrl.origin);
+      return NextResponse.redirect(`${safeOrigin}/auth/login?redirect=${request.nextUrl.pathname}`);
     }
 
     // Redirect logged-in users from auth pages to dashboard
@@ -57,9 +56,9 @@ export async function updateSession(request: NextRequest) {
     const isAuthPage = authPaths.some((path) => request.nextUrl.pathname.startsWith(path));
 
     if (user && isAuthPage) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
+      const isProd = process.env.NODE_ENV === 'production';
+      const safeOrigin = process.env.NEXT_PUBLIC_APP_URL || (isProd ? 'https://nexus-property-hub.vercel.app' : request.nextUrl.origin);
+      return NextResponse.redirect(`${safeOrigin}/dashboard`);
     }
 
     return supabaseResponse;
