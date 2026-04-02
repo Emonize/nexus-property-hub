@@ -88,22 +88,6 @@ export default function TrustPage() {
             NexusHub automatically evaluates every tenant across 5 critical risk dimensions to compute a deterministic reliability score.
           </p>
 
-          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', background: 'var(--nexus-bg-hover)', padding: '24px 32px', borderRadius: 16, marginBottom: 32 }}>
-            {[
-              { label: 'Payment History', weight: '35%', color: 'var(--nexus-primary-light)' },
-              { label: 'Background Check', weight: '25%', color: 'var(--nexus-accent)' },
-              { label: 'Credit Score', weight: '20%', color: 'var(--nexus-info)' },
-              { label: 'Eviction History', weight: '10%', color: 'var(--nexus-warning)' },
-              { label: 'Peer Reviews', weight: '10%', color: 'var(--nexus-positive)' },
-            ].map(f => (
-              <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 3, background: f.color }} />
-                <span style={{ color: 'var(--nexus-text-secondary)' }}>{f.label}</span>
-                <span style={{ fontWeight: 700, color: f.color }}>{f.weight}</span>
-              </div>
-            ))}
-          </div>
-
           <button className="btn-primary" style={{ padding: '0 24px', height: 44 }} onClick={() => window.location.href = '/tenants'}>
             Invite a Tenant
           </button>
