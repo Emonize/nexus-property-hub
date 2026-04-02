@@ -7,7 +7,9 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/dashboard';
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const rawOrigin = process.env.NEXT_PUBLIC_APP_URL || (isProduction ? 'https://nexus-property-hub.vercel.app' : 'http://localhost:3000');
+  const rawOrigin = isProduction 
+    ? 'https://nexus-property-hub.vercel.app' 
+    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
   if (code) {
     let response = NextResponse.redirect(`${rawOrigin}${next}`);

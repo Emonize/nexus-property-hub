@@ -50,15 +50,12 @@ export async function signOut() {
 
 export async function signInWithGoogle() {
   const supabase = await createClient();
-  const headersList = await headers();
-  const protocol = headersList.get('x-forwarded-proto') || 'https';
-  const host = headersList.get('host') || headersList.get('x-forwarded-host');
-  const dynamicOrigin = host ? `${protocol}://${host}` : undefined;
-  
   const isProduction = process.env.NODE_ENV === 'production';
-  const fallback = isProduction ? 'https://nexus-property-hub.vercel.app' : 'http://localhost:3000';
   
-  const origin = dynamicOrigin || process.env.NEXT_PUBLIC_APP_URL || fallback;
+  // Violently override ANY broken Vercel environment variables in production
+  const origin = isProduction 
+    ? 'https://nexus-property-hub.vercel.app' 
+    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
