@@ -31,14 +31,23 @@ export default function SignupPage() {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError('');
-    const result = await signInWithGoogle();
-    if (result.error) {
-      setError(result.error);
+    try {
+      setLoading(true);
+      setError('');
+      const result = await signInWithGoogle();
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+      } else if (result?.data?.url) {
+        window.location.href = result.data.url;
+      } else {
+        setError('Unknown error generating Google login link.');
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || 'A network error occurred contacting the server.');
       setLoading(false);
-    } else if (result.data?.url) {
-      window.location.href = result.data.url;
     }
   };
 
