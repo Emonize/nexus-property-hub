@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { signOut } from '@/lib/actions/auth';
 
-const navItems = [
+const ownerNav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/spaces', label: 'Spaces', icon: Building2 },
   { href: '/leases', label: 'Leases', icon: FileText },
@@ -33,14 +33,29 @@ const navItems = [
   { href: '/voice', label: 'Voice Agent', icon: Mic },
 ];
 
+const tenantNav = [
+  { href: '/dashboard', label: 'My Home', icon: LayoutDashboard },
+  { href: '/leases', label: 'My Lease', icon: FileText },
+  { href: '/payments', label: 'Rent Portal', icon: CreditCard },
+  { href: '/maintenance', label: 'Service Requests', icon: Wrench },
+];
+
+const vendorNav = [
+  { href: '/dashboard', label: 'Work Orders', icon: LayoutDashboard },
+  { href: '/maintenance', label: 'Open Tickets', icon: Wrench },
+  { href: '/payments', label: 'Payouts', icon: CreditCard },
+];
+
 const bottomItems = [
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ role }: { role: string }) {
   const pathname = usePathname();
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+
+  const navItems = role === 'tenant' ? tenantNav : role === 'vendor' ? vendorNav : ownerNav;
 
   return (
     <aside className="sidebar">
