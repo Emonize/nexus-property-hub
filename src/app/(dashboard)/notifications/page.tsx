@@ -13,13 +13,6 @@ interface NotifRow {
   created_at: string;
 }
 
-const demoNotifications: NotifRow[] = [
-  { id: '1', type: 'payment_reminder', title: 'Rent payment received', body: 'Alex Rivera paid $1,200 for Bedroom 1', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: '2', type: 'maintenance_update', title: 'Maintenance ticket triaged', body: 'Leaking kitchen faucet assessed as high severity — $280 estimate', read: false, created_at: new Date(Date.now() - 7200000).toISOString() },
-  { id: '3', type: 'lease_action', title: 'New lease application', body: 'Jamie Wilson applied for Unit 3C', read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: '4', type: 'trust_update', title: 'Trust score updated', body: "Priya Sharma's score decreased to 680 — background check flagged", read: true, created_at: new Date(Date.now() - 172800000).toISOString() },
-];
-
 const typeIcons: Record<string, typeof DollarSign> = {
   payment_reminder: DollarSign,
   maintenance_update: Wrench,
@@ -30,14 +23,13 @@ const typeIcons: Record<string, typeof DollarSign> = {
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotifRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications');
       if (res.ok) {
         const data = await res.json();
-        if (data?.data && data.data.length > 0) {
+        if (data?.data) {
           setNotifications(data.data.map((n: Record<string, unknown>) => ({
             id: n.id,
             type: n.type || 'system',
@@ -46,11 +38,10 @@ export default function NotificationsPage() {
             read: !!n.read,
             created_at: n.created_at as string,
           })));
-          setIsLive(true);
         }
       }
     } catch {
-      // Keep demo data
+      setNotifications([]);
     }
   }, []);
 
@@ -67,11 +58,6 @@ export default function NotificationsPage() {
           <h1 className="page-title">Notifications</h1>
           <p className="page-subtitle">
             {unreadCount} unread
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-secondary">Mark all read</button>
