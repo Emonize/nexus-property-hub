@@ -18,13 +18,6 @@ interface LeaseRow {
   split_group: boolean;
 }
 
-const demoLeases: LeaseRow[] = [
-  { id: 'c001', space_name: 'Bedroom 1', tenant_name: 'Alex Rivera', lease_type: 'Fixed', start_date: '2026-01-01', end_date: '2027-01-01', monthly_rent: 1200, split_pct: 37.5, status: 'active', split_group: true },
-  { id: 'c002', space_name: 'Bedroom 2', tenant_name: 'Jordan Park', lease_type: 'Fixed', start_date: '2026-01-01', end_date: '2027-01-01', monthly_rent: 1100, split_pct: 34.38, status: 'active', split_group: true },
-  { id: 'c003', space_name: 'Bedroom 3', tenant_name: 'Priya Sharma', lease_type: 'Fixed', start_date: '2026-01-01', end_date: '2027-01-01', monthly_rent: 900, split_pct: 28.12, status: 'active', split_group: true },
-  { id: 'c004', space_name: 'Unit 2B', tenant_name: 'Alex Rivera', lease_type: 'Month-to-Month', start_date: '2026-02-01', end_date: null, monthly_rent: 2800, split_pct: 100, status: 'active', split_group: false },
-];
-
 const statusStyles: Record<string, string> = {
   active: 'badge-positive',
   pending: 'badge-warning',
@@ -275,7 +268,6 @@ export default function LeasesPage() {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [leases, setLeases] = useState<LeaseRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
   const [showNewModal, setShowNewModal] = useState(false);
 
   const fetchLeases = useCallback(async () => {
@@ -296,10 +288,9 @@ export default function LeasesPage() {
             split_group: !!l.split_group_id,
           }));
           setLeases(mapped);
-          setIsLive(true);
         }
     } catch {
-      // Keep demo data
+      setLeases([]);
     }
   }, []);
 
@@ -319,11 +310,6 @@ export default function LeasesPage() {
           <h1 className="page-title">Leases</h1>
           <p className="page-subtitle">
             Manage tenant agreements and split groups
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-primary" onClick={() => setShowNewModal(true)}>

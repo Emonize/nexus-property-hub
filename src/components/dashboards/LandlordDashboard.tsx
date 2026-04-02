@@ -8,59 +8,18 @@ import ActionQueue from '@/components/dashboard/ActionQueue';
 import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
 import type { DashboardKPIs, Space } from '@/types/database';
 
-// Demo data used as fallback when no real data exists
-const demoKPIs: DashboardKPIs = {
-  totalCashFlow: 8200,
-  cashFlowTrend: [5800, 6200, 7100, 7800, 8000, 8200],
-  collectionRate: 85.7,
-  totalPayments: 7,
-  collectedPayments: 6,
-  urgentRepairs: 1,
-  criticalRepairs: 0,
-};
-
-const demoSpaces: Space[] = [
-  { id: 'b001', parent_id: null, owner_id: 'a001', name: 'Rentova Tower', type: 'building', address: null, floor_plan_url: null, area_sqft: 12000, base_rent: null, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b010', parent_id: 'b001', owner_id: 'a001', name: 'Unit 1A', type: 'unit', address: null, floor_plan_url: null, area_sqft: 1200, base_rent: 3200, currency: 'usd', amenities: ['washer_dryer', 'dishwasher'], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b011', parent_id: 'b001', owner_id: 'a001', name: 'Unit 2B', type: 'unit', address: null, floor_plan_url: null, area_sqft: 950, base_rent: 2800, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b012', parent_id: 'b001', owner_id: 'a001', name: 'Unit 3C', type: 'unit', address: null, floor_plan_url: null, area_sqft: 800, base_rent: 2200, currency: 'usd', amenities: [], status: 'vacant', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b013', parent_id: 'b001', owner_id: 'a001', name: 'Garage Bay A', type: 'garage', address: null, floor_plan_url: null, area_sqft: 200, base_rent: 350, currency: 'usd', amenities: [], status: 'listed', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b100', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 1', type: 'room', address: null, floor_plan_url: null, area_sqft: 300, base_rent: 1200, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b101', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 2', type: 'room', address: null, floor_plan_url: null, area_sqft: 280, base_rent: 1100, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-  { id: 'b102', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 3', type: 'room', address: null, floor_plan_url: null, area_sqft: 250, base_rent: 900, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '', updated_at: '' },
-];
-
-const demoTreemapData = [
-  { id: 'b100', name: 'Bedroom 1', type: 'room', rent: 1200, status: 'paid' as const },
-  { id: 'b101', name: 'Bedroom 2', type: 'room', rent: 1100, status: 'paid' as const },
-  { id: 'b102', name: 'Bedroom 3', type: 'room', rent: 900, status: 'pending' as const },
-  { id: 'b011', name: 'Unit 2B', type: 'unit', rent: 2800, status: 'paid' as const },
-  { id: 'b012', name: 'Unit 3C', type: 'unit', rent: 2200, status: 'vacant' as const },
-  { id: 'b013', name: 'Garage Bay A', type: 'garage', rent: 350, status: 'paid' as const },
-];
-
-const demoActions = [
-  { id: '1', type: 'maintenance' as const, title: 'Leaking kitchen faucet', subtitle: 'Bedroom 1 · Alex Rivera', timestamp: new Date(Date.now() - 3600000).toISOString(), severity: 'high', cta: 'Approve Repair $280', amount: 280 },
-  { id: '2', type: 'payment' as const, title: 'Rent overdue — Bedroom 3', subtitle: 'Priya Sharma · Due Mar 1', timestamp: new Date(Date.now() - 86400000 * 5).toISOString(), severity: undefined, cta: 'Send Reminder', amount: 900 },
-  { id: '3', type: 'lease' as const, title: 'New application received', subtitle: 'Unit 3C · Jamie Wilson · Trust: 780', timestamp: new Date(Date.now() - 7200000).toISOString(), severity: undefined, cta: 'Review', amount: undefined },
-];
-
 function DashboardContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isDemoMode = searchParams.get('demo') === 'true';
-
   const emptyKPIs: DashboardKPIs = {
     totalCashFlow: 0, cashFlowTrend: [], collectionRate: 0,
     totalPayments: 0, collectedPayments: 0, urgentRepairs: 0, criticalRepairs: 0
   };
 
-  const [kpis, setKpis] = useState<DashboardKPIs>(isDemoMode ? demoKPIs : emptyKPIs);
-  const [spaces, setSpaces] = useState<Space[]>(isDemoMode ? demoSpaces : []);
-  const [treemapData, setTreemapData] = useState(isDemoMode ? demoTreemapData : []);
-  const [actions, setActions] = useState(isDemoMode ? demoActions : []);
+  const [kpis, setKpis] = useState<DashboardKPIs>(emptyKPIs);
+  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [treemapData, setTreemapData] = useState<any[]>([]);
+  const [actions, setActions] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
-  const [isLive, setIsLive] = useState(!isDemoMode);
   const [dismissedActions, setDismissedActions] = useState<Set<string>>(new Set());
 
   const fetchDashboardData = useCallback(async () => {
@@ -88,62 +47,57 @@ function DashboardContent() {
         isLiveSpaces = true;
       }
 
-      // Core logic: If user is strictly not in demo mode, ALWAYS sync the exact database state (even if empty zeros).
-      if (!isDemoMode) {
-        setIsLive(true);
-        if (liveKpiData) setKpis(liveKpiData);
-        
-        setSpaces(liveSpacesData);
-        const rentable = liveSpacesData.filter((s: Space) => s.base_rent && Number(s.base_rent) > 0);
-        if (rentable.length > 0) {
-          setTreemapData(
-            rentable.map((s: Space) => ({
-              id: s.id,
-              name: s.name,
-              type: s.type,
-              rent: Number(s.base_rent) || 0,
-              status: s.status === 'occupied' ? ('paid' as const) : s.status === 'vacant' ? ('vacant' as const) : ('pending' as const),
-            }))
-          );
-        } else {
-          setTreemapData([]);
-        }
+      // Core logic: ALWAYS sync the exact database state (even if empty zeros).
+      if (liveKpiData) setKpis(liveKpiData);
+      
+      setSpaces(liveSpacesData);
+      const rentable = liveSpacesData.filter((s: Space) => s.base_rent && Number(s.base_rent) > 0);
+      if (rentable.length > 0) {
+        setTreemapData(
+          rentable.map((s: Space) => ({
+            id: s.id,
+            name: s.name,
+            type: s.type,
+            rent: Number(s.base_rent) || 0,
+            status: s.status === 'occupied' ? ('paid' as const) : s.status === 'vacant' ? ('vacant' as const) : ('pending' as const),
+          }))
+        );
+      } else {
+        setTreemapData([]);
       }
 
       // Fetch action queue items
-      if (!isDemoMode) {
-        const { getActionQueueItems } = await import('@/lib/actions/maintenance');
-        const actionsData = await getActionQueueItems();
-        if (actionsData) {
-          const formattedActions = [
-            ...(actionsData.tickets.map(t => ({
-              id: t.id,
-              type: 'maintenance' as const,
-              title: t.title,
-              subtitle: `Space: ${(t.space as Record<string,unknown>)?.name || 'Unknown'}`,
-              timestamp: 'Just now',
-              severity: t.ai_severity === 'critical' ? 'critical' : t.ai_severity === 'high' ? 'high' : 'medium',
-              cta: 'View',
-              amount: 0,
-            }))),
-            ...(actionsData.payments.map(p => ({
-              id: String(p.id),
-              type: 'payment' as const,
-              title: `Late Rent: $${Number(p.amount)}`,
-              subtitle: `Tenant: ${(p.tenant as Record<string,unknown>)?.full_name || 'Unknown'} | Due: ${p.due_date}`,
-              timestamp: p.due_date as string,
-              severity: undefined,
-              cta: 'Review',
-              amount: Number(p.amount),
-            })))
-          ];
-          if (formattedActions.length > 0) setActions(formattedActions);
-        }
+      const { getActionQueueItems } = await import('@/lib/actions/maintenance');
+      const actionsData = await getActionQueueItems();
+      if (actionsData) {
+        const formattedActions = [
+          ...(actionsData.tickets.map(t => ({
+            id: t.id,
+            type: 'maintenance' as const,
+            title: t.title,
+            subtitle: `Space: ${(t.space as Record<string,unknown>)?.name || 'Unknown'}`,
+            timestamp: 'Just now',
+            severity: t.ai_severity === 'critical' ? 'critical' : t.ai_severity === 'high' ? 'high' : 'medium',
+            cta: 'View',
+            amount: 0,
+          }))),
+          ...(actionsData.payments.map(p => ({
+            id: String(p.id),
+            type: 'payment' as const,
+            title: `Late Rent: $${Number(p.amount)}`,
+            subtitle: `Tenant: ${(p.tenant as Record<string,unknown>)?.full_name || 'Unknown'} | Due: ${p.due_date}`,
+            timestamp: p.due_date as string,
+            severity: undefined,
+            cta: 'Review',
+            amount: Number(p.amount),
+          })))
+        ];
+        if (formattedActions.length > 0) setActions(formattedActions);
       }
     } catch {
       // API error handler
     }
-  }, [isDemoMode]);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -184,11 +138,6 @@ function DashboardContent() {
           <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">
             Your property portfolio at a glance
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

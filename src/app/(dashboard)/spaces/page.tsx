@@ -33,17 +33,6 @@ const AMENITY_OPTIONS = [
   'pet_friendly', 'storage', 'roof_access', 'garden',
 ];
 
-const demoSpaces: Space[] = [
-  { id: 'b001', parent_id: null, owner_id: 'a001', name: 'Rentova Tower', type: 'building', address: { street: '123 Main St', city: 'Brooklyn', state: 'NY', zip: '11201', country: 'US' }, floor_plan_url: null, area_sqft: 12000, base_rent: null, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b010', parent_id: 'b001', owner_id: 'a001', name: 'Unit 1A', type: 'unit', address: null, floor_plan_url: null, area_sqft: 1200, base_rent: 3200, currency: 'usd', amenities: ['washer_dryer', 'dishwasher', 'central_ac'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b011', parent_id: 'b001', owner_id: 'a001', name: 'Unit 2B', type: 'unit', address: null, floor_plan_url: null, area_sqft: 950, base_rent: 2800, currency: 'usd', amenities: ['dishwasher'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b012', parent_id: 'b001', owner_id: 'a001', name: 'Unit 3C', type: 'unit', address: null, floor_plan_url: null, area_sqft: 800, base_rent: 2200, currency: 'usd', amenities: [], status: 'vacant', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b013', parent_id: 'b001', owner_id: 'a001', name: 'Garage Bay A', type: 'garage', address: null, floor_plan_url: null, area_sqft: 200, base_rent: 350, currency: 'usd', amenities: [], status: 'listed', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b100', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 1', type: 'room', address: null, floor_plan_url: null, area_sqft: 300, base_rent: 1200, currency: 'usd', amenities: ['furnished', 'ensuite'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b101', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 2', type: 'room', address: null, floor_plan_url: null, area_sqft: 280, base_rent: 1100, currency: 'usd', amenities: ['window', 'closet'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-  { id: 'b102', parent_id: 'b010', owner_id: 'a001', name: 'Bedroom 3', type: 'room', address: null, floor_plan_url: null, area_sqft: 250, base_rent: 900, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
-];
-
 // ─── Shared Space Form Component ──────────────────────────────────────────────
 
 function SpaceFormModal({
@@ -300,7 +289,6 @@ export default function SpacesPage() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [addParentId, setAddParentId] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const fetchSpaces = useCallback(async () => {
@@ -309,10 +297,9 @@ export default function SpacesPage() {
       const data = await getSpaces();
       if (data && !data.error && data.data) {
         setSpaces(data.data);
-        setIsLive(true);
       }
     } catch {
-      // Keep demo data
+      setSpaces([]);
     }
   }, []);
 
@@ -321,7 +308,6 @@ export default function SpacesPage() {
   }, [fetchSpaces]);
 
   const handleDelete = async (id: string) => {
-    if (!isLive) return;
     setDeleting(true);
     const result = await deleteSpace(id);
     if (!result.error) {
@@ -332,7 +318,6 @@ export default function SpacesPage() {
   };
 
   const handleReparent = async (spaceId: string, newParentId: string | null) => {
-    if (!isLive) return;
     await reparentSpace(spaceId, newParentId);
     fetchSpaces();
   };
@@ -392,11 +377,6 @@ export default function SpacesPage() {
           <h1 className="page-title">Spaces</h1>
           <p className="page-subtitle">
             Manage your property hierarchy
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-primary" onClick={() => openAddModal(null)}>

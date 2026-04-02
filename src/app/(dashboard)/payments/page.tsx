@@ -16,13 +16,6 @@ interface PaymentRow {
   method: string | null;
 }
 
-const demoPayments: PaymentRow[] = [
-  { id: 'e001', tenant: 'Alex Rivera', space: 'Bedroom 1', amount: 1200, due_date: '2026-03-01', paid_date: '2026-03-01', status: 'paid', method: 'ACH Transfer' },
-  { id: 'e002', tenant: 'Jordan Park', space: 'Bedroom 2', amount: 1100, due_date: '2026-03-01', paid_date: '2026-03-02', status: 'paid', method: 'Credit Card' },
-  { id: 'e003', tenant: 'Priya Sharma', space: 'Bedroom 3', amount: 900, due_date: '2026-03-01', paid_date: null, status: 'pending', method: null },
-  { id: 'e004', tenant: 'Alex Rivera', space: 'Unit 2B', amount: 2800, due_date: '2026-03-01', paid_date: '2026-03-01', status: 'paid', method: 'ACH Transfer' },
-];
-
 const statusConfig: Record<string, { icon: typeof Check; color: string; badge: string }> = {
   paid: { icon: Check, color: 'var(--nexus-positive)', badge: 'badge-positive' },
   pending: { icon: Clock, color: 'var(--nexus-warning)', badge: 'badge-warning' },
@@ -35,7 +28,6 @@ const statusConfig: Record<string, { icon: typeof Check; color: string; badge: s
 export default function PaymentsPage() {
   const [filter, setFilter] = useState('all');
   const [payments, setPayments] = useState<PaymentRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
 
   const fetchPayments = useCallback(async () => {
     try {
@@ -53,10 +45,9 @@ export default function PaymentsPage() {
             method: p.stripe_payment_id ? 'Stripe' : null,
           }));
           setPayments(mapped);
-          setIsLive(true);
       }
     } catch {
-      // Keep demo data
+      setPayments([]);
     }
   }, []);
 
@@ -92,11 +83,6 @@ export default function PaymentsPage() {
           <h1 className="page-title">Payments</h1>
           <p className="page-subtitle">
             Track rent collection and payment status
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-secondary"><Download size={16} /> Export</button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Home, FileText, CreditCard, Wrench, AlertTriangle } from 'lucide-react';
+import { Home, FileText, CreditCard, Wrench, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function TenantDashboard() {
@@ -26,34 +26,33 @@ export default function TenantDashboard() {
       <div className="grid-3" style={{ marginBottom: 24 }}>
         <div className="kpi-card" onClick={() => router.push('/payments')} style={{ cursor: 'pointer' }}>
           <div className="kpi-label">Next Rent Due</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-positive)' }}>$1,200</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Due on Apr 1, 2026</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)' }}>$0</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No balances due</div>
         </div>
         
         <div className="kpi-card" onClick={() => router.push('/maintenance')} style={{ cursor: 'pointer' }}>
           <div className="kpi-label">Active Requests</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-warning)' }}>1</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Plumbing issue under review</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)' }}>0</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No active maintenance</div>
         </div>
 
         <div className="kpi-card" onClick={() => router.push('/leases')} style={{ cursor: 'pointer' }}>
           <div className="kpi-label">Lease Status</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-primary-light)' }}>Active</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Expiring in 8 months</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)', fontSize: 24, paddingBottom: 6 }}>Not Active</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No lease connected</div>
         </div>
       </div>
 
       <div className="nexus-card">
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <AlertTriangle size={18} style={{ color: 'var(--nexus-warning)' }} />
+          <CheckCircle size={18} style={{ color: 'var(--nexus-positive)' }} />
           Action Required
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: 'var(--nexus-bg-hover)', borderRadius: 12 }}>
-          <div>
-            <div style={{ fontWeight: 600 }}>Sign Renewed Addendum</div>
-            <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>Pending digital signature for pet policy update.</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, background: 'var(--nexus-bg-hover)', borderRadius: 12 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontWeight: 600, color: 'var(--nexus-text-primary)' }}>You're all caught up!</div>
+            <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>No documents require your signature.</div>
           </div>
-          <button className="btn-primary" onClick={() => router.push('/leases')}>Review Document</button>
         </div>
       </div>
     </div>

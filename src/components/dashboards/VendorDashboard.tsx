@@ -26,20 +26,20 @@ export default function VendorDashboard() {
       <div className="grid-3" style={{ marginBottom: 24 }}>
         <div className="kpi-card" onClick={() => router.push('/maintenance')} style={{ cursor: 'pointer' }}>
           <div className="kpi-label">Assigned Tickets</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-warning)' }}>3</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Awaiting dispatch</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)' }}>0</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No active dispatch</div>
         </div>
         
         <div className="kpi-card">
           <div className="kpi-label">In Progress</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-info)' }}>2</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Active jobs on-site</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)' }}>0</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No jobs on-site</div>
         </div>
 
         <div className="kpi-card" onClick={() => router.push('/payments')} style={{ cursor: 'pointer' }}>
           <div className="kpi-label">Pending Payouts</div>
-          <div className="kpi-value" style={{ color: 'var(--nexus-positive)' }}>$450</div>
-          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>Invoice processing via ACH</div>
+          <div className="kpi-value" style={{ color: 'var(--nexus-text-muted)' }}>$0</div>
+          <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 8 }}>No invoices processing</div>
         </div>
       </div>
     </div>

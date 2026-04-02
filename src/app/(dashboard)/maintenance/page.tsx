@@ -17,11 +17,6 @@ interface TicketRow {
   diy_suggestion: string | null;
 }
 
-const demoTickets: TicketRow[] = [
-  { id: 'f001', title: 'Leaking kitchen faucet', space: 'Bedroom 1', reporter: 'Alex Rivera', severity: 'high', category: 'plumbing', cost_estimate: 280, status: 'open', created_at: '2026-03-28T10:00:00Z', diy_suggestion: null },
-  { id: 'f002', title: 'Wall scuff in hallway', space: 'Bedroom 2', reporter: 'Jordan Park', severity: 'cosmetic', category: 'cosmetic', cost_estimate: 0, status: 'triaged', created_at: '2026-03-29T14:00:00Z', diy_suggestion: '1. Clean the area. 2. Apply matching touch-up paint. 3. Allow to dry.' },
-];
-
 const severityColors: Record<string, string> = {
   critical: 'badge-critical',
   high: 'badge-warning',
@@ -33,7 +28,6 @@ const severityColors: Record<string, string> = {
 export default function MaintenancePage() {
   const [showCreate, setShowCreate] = useState(false);
   const [tickets, setTickets] = useState<TicketRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -53,10 +47,9 @@ export default function MaintenancePage() {
             diy_suggestion: t.ai_diy_suggestion as string | null,
           }));
           setTickets(mapped);
-          setIsLive(true);
       }
     } catch {
-      // Keep demo data
+      setTickets([]);
     }
   }, []);
 
@@ -88,11 +81,6 @@ export default function MaintenancePage() {
           <h1 className="page-title">Maintenance</h1>
           <p className="page-subtitle">
             AI-triaged maintenance requests
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-primary" onClick={() => setShowCreate(!showCreate)}>

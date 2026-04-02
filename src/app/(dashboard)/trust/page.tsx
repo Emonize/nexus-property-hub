@@ -13,12 +13,6 @@ interface TrustRow {
   review: number;
 }
 
-const demoScores: TrustRow[] = [
-  { user: 'Alex Rivera', score: 820, payment: 95, bg: 'clear', credit: 740, evictions: 0, review: 4.5 },
-  { user: 'Jordan Park', score: 760, payment: 88, bg: 'clear', credit: 690, evictions: 0, review: 4.2 },
-  { user: 'Priya Sharma', score: 680, payment: 72, bg: 'flagged', credit: 620, evictions: 1, review: 3.8 },
-];
-
 function getScoreColor(score: number) {
   if (score >= 800) return 'var(--nexus-positive)';
   if (score >= 600) return 'var(--nexus-warning)';
@@ -34,7 +28,6 @@ function getScoreLabel(score: number) {
 
 export default function TrustPage() {
   const [scores, setScores] = useState<TrustRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
 
   const fetchScores = useCallback(async () => {
     try {
@@ -51,10 +44,9 @@ export default function TrustPage() {
             review: Number(t.review_avg) || 0,
           }));
           setScores(mapped);
-          setIsLive(true);
       }
     } catch {
-      // Keep demo data
+      setScores([]);
     }
   }, []);
 
@@ -69,11 +61,6 @@ export default function TrustPage() {
           <h1 className="page-title">Trust Scores</h1>
           <p className="page-subtitle">
             AI-computed tenant reliability scores (0–1000)
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
       </div>

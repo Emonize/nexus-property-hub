@@ -12,15 +12,8 @@ interface TenantRow {
   status: string;
 }
 
-const demoTenants: TenantRow[] = [
-  { name: 'Alex Rivera', email: 'tenant1@nexus.test', phone: '+1 (555) 123-4567', spaces: ['Bedroom 1', 'Unit 2B'], trust: 820, status: 'active' },
-  { name: 'Jordan Park', email: 'tenant2@nexus.test', phone: '+1 (555) 234-5678', spaces: ['Bedroom 2'], trust: 760, status: 'active' },
-  { name: 'Priya Sharma', email: 'tenant3@nexus.test', phone: '+1 (555) 345-6789', spaces: ['Bedroom 3'], trust: 680, status: 'active' },
-];
-
 export default function TenantsPage() {
   const [tenants, setTenants] = useState<TenantRow[]>([]);
-  const [isLive, setIsLive] = useState(false);
   const [search, setSearch] = useState('');
 
   const fetchTenants = useCallback(async () => {
@@ -43,10 +36,9 @@ export default function TenantsPage() {
             status: 'active',
           }));
           setTenants(mapped);
-          setIsLive(true);
       }
     } catch {
-      // Keep demo data
+      setTenants([]);
     }
   }, []);
 
@@ -65,11 +57,6 @@ export default function TenantsPage() {
           <h1 className="page-title">Tenants</h1>
           <p className="page-subtitle">
             Manage your tenant directory
-            {!isLive && (
-              <span style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, background: 'rgba(251, 188, 4, 0.15)', color: 'var(--nexus-warning)', fontSize: 11, fontWeight: 600 }}>
-                DEMO MODE
-              </span>
-            )}
           </p>
         </div>
         <button className="btn-primary"><Plus size={16} /> Invite Tenant</button>
