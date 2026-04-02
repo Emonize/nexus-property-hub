@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/dashboard';
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const rawOrigin = process.env.NEXT_PUBLIC_APP_URL || (isProduction ? 'https://nexus-property-hub.vercel.app' : 'http://localhost:3000');
+
   if (code) {
-    let response = NextResponse.redirect(`${origin}${next}`);
+    let response = NextResponse.redirect(`${rawOrigin}${next}`);
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,5 +36,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/login?error=Could not authenticate`);
+  return NextResponse.redirect(`${rawOrigin}/auth/login?error=Could not authenticate`);
 }
