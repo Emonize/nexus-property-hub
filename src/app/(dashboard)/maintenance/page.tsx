@@ -32,7 +32,7 @@ const severityColors: Record<string, string> = {
 
 export default function MaintenancePage() {
   const [showCreate, setShowCreate] = useState(false);
-  const [tickets, setTickets] = useState<TicketRow[]>(demoTickets);
+  const [tickets, setTickets] = useState<TicketRow[]>([]);
   const [isLive, setIsLive] = useState(false);
 
   const fetchTickets = useCallback(async () => {

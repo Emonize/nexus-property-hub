@@ -276,7 +276,7 @@ function NewLeaseModal({
 export default function LeasesPage() {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
-  const [leases, setLeases] = useState<LeaseRow[]>(demoLeases);
+  const [leases, setLeases] = useState<LeaseRow[]>([]);
   const [isLive, setIsLive] = useState(false);
   const [showNewModal, setShowNewModal] = useState(false);
 

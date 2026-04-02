@@ -33,7 +33,7 @@ function getScoreLabel(score: number) {
 }
 
 export default function TrustPage() {
-  const [scores, setScores] = useState<TrustRow[]>(demoScores);
+  const [scores, setScores] = useState<TrustRow[]>([]);
   const [isLive, setIsLive] = useState(false);
 
   const fetchScores = useCallback(async () => {

@@ -29,7 +29,7 @@ const typeIcons: Record<string, typeof DollarSign> = {
 };
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<NotifRow[]>(demoNotifications);
+  const [notifications, setNotifications] = useState<NotifRow[]>([]);
   const [isLive, setIsLive] = useState(false);
 
   const fetchNotifications = useCallback(async () => {

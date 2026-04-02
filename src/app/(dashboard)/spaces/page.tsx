@@ -295,7 +295,7 @@ function SpaceFormModal({
 
 export default function SpacesPage() {
   const [search, setSearch] = useState('');
-  const [spaces, setSpaces] = useState<Space[]>(demoSpaces);
+  const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');

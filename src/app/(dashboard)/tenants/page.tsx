@@ -19,7 +19,7 @@ const demoTenants: TenantRow[] = [
 ];
 
 export default function TenantsPage() {
-  const [tenants, setTenants] = useState<TenantRow[]>(demoTenants);
+  const [tenants, setTenants] = useState<TenantRow[]>([]);
   const [isLive, setIsLive] = useState(false);
   const [search, setSearch] = useState('');
 

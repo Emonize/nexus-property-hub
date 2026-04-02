@@ -23,7 +23,7 @@ const demoRooms = [
 
 export default function MicroListPage() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('select');
-  const [rooms, setRooms] = useState(demoRooms);
+  const [rooms, setRooms] = useState<any[]>([]);
   const [published, setPublished] = useState(false);
 
   const currentIndex = steps.findIndex(s => s.id === currentStep);

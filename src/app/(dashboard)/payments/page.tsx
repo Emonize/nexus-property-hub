@@ -34,7 +34,7 @@ const statusConfig: Record<string, { icon: typeof Check; color: string; badge: s
 
 export default function PaymentsPage() {
   const [filter, setFilter] = useState('all');
-  const [payments, setPayments] = useState<PaymentRow[]>(demoPayments);
+  const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [isLive, setIsLive] = useState(false);
 
   const fetchPayments = useCallback(async () => {
