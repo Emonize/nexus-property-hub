@@ -38,7 +38,7 @@ export default function SignupPage() {
       setError(result.error);
       setLoading(false);
     } else if (result.data?.url) {
-      router.push(result.data.url);
+      window.location.href = result.data.url;
     }
   };
 
