@@ -6,7 +6,7 @@ import { Mic, MicOff, Phone, PhoneOff } from 'lucide-react';
 export default function VoicePage() {
   const [isListening, setIsListening] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
-    { role: 'ai', text: 'Hello! I\'m Nexus, your AI property assistant. You can ask me about rent status, file maintenance tickets, check trust scores, or find available spaces. How can I help you today?' },
+    { role: 'ai', text: 'Hello! I\'m Rentova, your AI property assistant. You can ask me about rent status, file maintenance tickets, check trust scores, or find available spaces. How can I help you today?' },
   ]);
   const [input, setInput] = useState('');
 
@@ -22,7 +22,7 @@ export default function VoicePage() {
       const lower = userMsg.toLowerCase();
 
       if (lower.includes('rent') && lower.includes('status')) {
-        response = 'For Nexus Tower: 6 of 7 payments received this month. Collection rate is 85.7%. Priya Sharma\'s payment for Bedroom 3 ($900) is still pending.';
+        response = 'For Rentova Tower: 6 of 7 payments received this month. Collection rate is 85.7%. Priya Sharma\'s payment for Bedroom 3 ($900) is still pending.';
       } else if (lower.includes('maintenance') || lower.includes('ticket')) {
         response = 'I\'ve created a maintenance ticket for that issue. The AI triage system has assessed it as high severity, category: plumbing. Estimated repair cost: $280. The property owner has been notified.';
       } else if (lower.includes('trust') || lower.includes('score')) {

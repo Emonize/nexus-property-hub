@@ -24,7 +24,7 @@ export default async function HomePage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div className="sidebar-logo-icon" style={{ width: 32, height: 32, fontSize: 14 }}>N</div>
-          <span className="sidebar-logo-text" style={{ fontSize: 18 }}>NexusHub</span>
+          <span className="sidebar-logo-text" style={{ fontSize: 18 }}>Rentova</span>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           {isLoggedIn ? (
@@ -59,7 +59,7 @@ export default async function HomePage() {
             <span style={{ color: 'var(--nexus-text-secondary)' }}>One Platform.</span>
           </h1>
           <p style={{ fontSize: 18, color: 'var(--nexus-text-secondary)', marginTop: 24, lineHeight: 1.7, maxWidth: 560, margin: '24px auto 0' }}>
-            Nexus transforms any property into a revenue-maximizing machine with recursive space hierarchies, AI-powered maintenance triage, fractional rent payments, and voice-first interfaces.
+            Rentova transforms any property into a revenue-maximizing machine with recursive space hierarchies, AI-powered maintenance triage, fractional rent payments, and voice-first interfaces.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40 }}>
             {isLoggedIn ? (
@@ -131,7 +131,7 @@ export default async function HomePage() {
       <footer style={{ padding: '40px 48px', borderTop: '1px solid var(--nexus-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--nexus-text-muted)', fontSize: 13 }}>
           <div className="sidebar-logo-icon" style={{ width: 24, height: 24, fontSize: 10 }}>N</div>
-          NexusHub © 2026. All rights reserved.
+          Rentova © 2026. All rights reserved.
         </div>
         <div style={{ display: 'flex', gap: 24, fontSize: 13, color: 'var(--nexus-text-muted)' }}>
           <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy</a>

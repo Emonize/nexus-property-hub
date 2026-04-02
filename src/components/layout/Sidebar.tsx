@@ -46,7 +46,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">N</div>
-        <span className="sidebar-logo-text">NexusHub</span>
+        <span className="sidebar-logo-text">Rentova</span>
       </div>
 
       <nav className="sidebar-nav">
@@ -105,7 +105,7 @@ export default function Sidebar() {
           }}
         >
           <Sparkles size={16} />
-          Ask Nexus AI
+          Ask Rentova AI
         </button>
       </div>
 

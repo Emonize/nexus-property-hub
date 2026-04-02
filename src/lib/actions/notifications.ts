@@ -63,7 +63,7 @@ async function sendEmail(userId: string, subject: string, body: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Nexus Property Hub <noreply@nexushub.com>',
+      from: 'Rentova <noreply@nexushub.com>',
       to: user.email,
       subject,
       html: `<div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -93,7 +93,7 @@ async function sendSMS(userId: string, body: string) {
   const params = new URLSearchParams();
   params.append('To', user.phone);
   params.append('From', process.env.TWILIO_PHONE_NUMBER!);
-  params.append('Body', `[Nexus] ${body}`);
+  params.append('Body', `[Rentova] ${body}`);
 
   await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`,

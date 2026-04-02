@@ -16,7 +16,7 @@ interface Message {
 
 export default function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: 'Hello! I am your **Nexus AI Copilot**. How can I help you manage your portfolio today?' }
+    { id: '1', role: 'assistant', content: 'Hello! I am your **Rentova AI Copilot**. How can I help you manage your portfolio today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +50,7 @@ export default function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
         setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'An error occurred while connecting to the AI.' }]);
       }
     } catch (err) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Failed to contact Nexus Copilot.' }]);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Failed to contact Rentova Copilot.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +84,7 @@ export default function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
               <Sparkles size={18} />
             </div>
             <div>
-              <h2 style={{ fontWeight: 600, fontSize: 16 }}>Nexus Copilot</h2>
+              <h2 style={{ fontWeight: 600, fontSize: 16 }}>Rentova Copilot</h2>
               <span style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>Gemini 2.5 Flash</span>
             </div>
           </div>

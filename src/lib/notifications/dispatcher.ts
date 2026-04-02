@@ -97,10 +97,10 @@ export async function dispatchNotification({
               'Authorization': `Bearer ${resendKey}`
             },
             body: JSON.stringify({
-              from: 'Nexus Hub <nexus@yourdomain.com>',
+              from: 'Rentova Hub <nexus@yourdomain.com>',
               to: [user.email],
               subject: title,
-              html: `<div style="font-family:sans-serif; padding: 20px;"><h2>${title}</h2><p>${body}</p><br/><hr/><small>Nexus Property Hub Automated System</small></div>`
+              html: `<div style="font-family:sans-serif; padding: 20px;"><h2>${title}</h2><p>${body}</p><br/><hr/><small>Rentova Automated System</small></div>`
             })
           }).catch(err => console.error('Resend Error:', err));
         }

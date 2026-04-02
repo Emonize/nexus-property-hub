@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         type: 'trust_update',
         title: 'Background Check Cleared 🎉',
-        body: 'Welcome to Nexus! Your Checkr background check has successfully cleared. You may now proceed to sign your lease.',
+        body: 'Welcome to Rentova! Your Checkr background check has successfully cleared. You may now proceed to sign your lease.',
         channels: ['app', 'sms', 'email']
       });
 

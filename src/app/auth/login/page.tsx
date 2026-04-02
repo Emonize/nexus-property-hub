@@ -45,7 +45,7 @@ export default function LoginPage() {
           <div className="sidebar-logo-icon" style={{ width: 48, height: 48, fontSize: 20, margin: '0 auto 16px', borderRadius: 14 }}>N</div>
           <h1 style={{ fontSize: 24, fontWeight: 800 }}>Welcome back</h1>
           <p style={{ color: 'var(--nexus-text-secondary)', marginTop: 8, fontSize: 14 }}>
-            Sign in to your Nexus Property Hub account
+            Sign in to your Rentova account
           </p>
         </div>
 

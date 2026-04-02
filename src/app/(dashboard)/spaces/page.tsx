@@ -34,7 +34,7 @@ const AMENITY_OPTIONS = [
 ];
 
 const demoSpaces: Space[] = [
-  { id: 'b001', parent_id: null, owner_id: 'a001', name: 'Nexus Tower', type: 'building', address: { street: '123 Main St', city: 'Brooklyn', state: 'NY', zip: '11201', country: 'US' }, floor_plan_url: null, area_sqft: 12000, base_rent: null, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
+  { id: 'b001', parent_id: null, owner_id: 'a001', name: 'Rentova Tower', type: 'building', address: { street: '123 Main St', city: 'Brooklyn', state: 'NY', zip: '11201', country: 'US' }, floor_plan_url: null, area_sqft: 12000, base_rent: null, currency: 'usd', amenities: [], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
   { id: 'b010', parent_id: 'b001', owner_id: 'a001', name: 'Unit 1A', type: 'unit', address: null, floor_plan_url: null, area_sqft: 1200, base_rent: 3200, currency: 'usd', amenities: ['washer_dryer', 'dishwasher', 'central_ac'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
   { id: 'b011', parent_id: 'b001', owner_id: 'a001', name: 'Unit 2B', type: 'unit', address: null, floor_plan_url: null, area_sqft: 950, base_rent: 2800, currency: 'usd', amenities: ['dishwasher'], status: 'occupied', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },
   { id: 'b012', parent_id: 'b001', owner_id: 'a001', name: 'Unit 3C', type: 'unit', address: null, floor_plan_url: null, area_sqft: 800, base_rent: 2200, currency: 'usd', amenities: [], status: 'vacant', listing_photos: [], meta: {}, created_at: '2026-01-01', updated_at: '2026-03-01' },

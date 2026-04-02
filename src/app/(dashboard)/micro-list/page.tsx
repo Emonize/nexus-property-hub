@@ -75,7 +75,7 @@ export default function MicroListPage() {
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Select a property to split</h2>
             <p style={{ color: 'var(--nexus-text-secondary)', marginBottom: 24 }}>Choose an existing property or paste an address</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['Nexus Tower', 'Unit 1A', 'Unit 3C'].map(name => (
+              {['Rentova Tower', 'Unit 1A', 'Unit 3C'].map(name => (
                 <button key={name} className="btn-secondary" style={{ padding: '16px 24px' }} onClick={nextStep}>
                   <Building2Icon /> {name}
                 </button>

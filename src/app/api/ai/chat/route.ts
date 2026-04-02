@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ No GOOGLE_AI_API_KEY found. Using mock AI response.');
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate AI thinking
       return NextResponse.json({
-        content: "I am the **Nexus Property Copilot**! 🤖\n\n*(Note: This is a simulated response because you have't added your free Google Gemini API key to `.env.local` yet! Once you add it, I will be fully intelligent!)*\n\nHow else can I help you manage your portfolio today?"
+        content: "I am the **Rentova Property Copilot**! 🤖\n\n*(Note: This is a simulated response because you have't added your free Google Gemini API key to `.env.local` yet! Once you add it, I will be fully intelligent!)*\n\nHow else can I help you manage your portfolio today?"
       });
     }
 
     // ==========================================
     // PRODUCTION: Real Gemini 1.5 Pro execution
     // ==========================================
-    const systemInstruction = `You are the Nexus Property Hub AI Copilot, a friendly, human-like, and highly enthusiastic property management assistant. You speak with a warm, conversational, and approachable tone—never robotic or overly corporate. You use emojis naturally. Format your responses beautifully using markdown. Your job is to help the property manager analyze rent rolls, draft tenant emails, and manage their portfolio while feeling like a supportive human coworker. Keep responses concise unless asked to draft a document.`;
+    const systemInstruction = `You are the Rentova AI Copilot, a friendly, human-like, and highly enthusiastic property management assistant. You speak with a warm, conversational, and approachable tone—never robotic or overly corporate. You use emojis naturally. Format your responses beautifully using markdown. Your job is to help the property manager analyze rent rolls, draft tenant emails, and manage their portfolio while feeling like a supportive human coworker. Keep responses concise unless asked to draft a document.`;
 
     // Map messages specifically to Gemini's format: 'user' or 'model'
     const formattedHistory = messages.map((m: any) => ({

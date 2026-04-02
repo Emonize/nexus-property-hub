@@ -60,7 +60,7 @@ export default function TenantOnboardingPage() {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
           <div className="sidebar-logo-icon" style={{ width: 36, height: 36, fontSize: 16 }}>N</div>
-          <span className="sidebar-logo-text">NexusHub</span>
+          <span className="sidebar-logo-text">Rentova</span>
           <span style={{ color: 'var(--nexus-text-muted)', fontSize: 13, marginLeft: 'auto' }}>Tenant Onboarding</span>
         </div>
 
@@ -104,7 +104,7 @@ export default function TenantOnboardingPage() {
               <div style={{ padding: 20, background: 'rgba(0, 212, 170, 0.06)', border: '1px solid rgba(0, 212, 170, 0.15)', borderRadius: 'var(--nexus-radius-sm)' }}>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>Why do we run a background check?</div>
                 <p style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', lineHeight: 1.6 }}>
-                  Background checks help ensure a safe community. We use Checkr, an FCRA-compliant service. Your SSN is sent directly to Checkr over a 256-bit encrypted connection and is never stored on Nexus servers.
+                  Background checks help ensure a safe community. We use Checkr, an FCRA-compliant service. Your SSN is sent directly to Checkr over a 256-bit encrypted connection and is never stored on Rentova servers.
                 </p>
               </div>
               
@@ -121,7 +121,7 @@ export default function TenantOnboardingPage() {
 
               <label style={{ display: 'flex', gap: 12, fontSize: 14, cursor: 'pointer', padding: 16, background: 'var(--nexus-bg-elevated)', borderRadius: 'var(--nexus-radius-sm)' }}>
                 <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} />
-                I authorize Nexus to run a background check via Checkr, including criminal history, eviction records, and identity verification.
+                I authorize Rentova to run a background check via Checkr, including criminal history, eviction records, and identity verification.
               </label>
             </div>
           )}
