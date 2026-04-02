@@ -41,7 +41,7 @@ export default function PaymentsPage() {
     try {
       const { getPayments } = await import('@/lib/actions/payments');
       const data = await getPayments();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         const mapped: PaymentRow[] = (data.data as Record<string, unknown>[]).map((p: Record<string, unknown>) => ({
             id: p.id as string,
             tenant: ((p.tenant as Record<string, unknown>)?.full_name as string) || 'Unknown',

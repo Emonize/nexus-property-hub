@@ -39,7 +39,7 @@ export default function MaintenancePage() {
     try {
       const { getMaintenanceTickets } = await import('@/lib/actions/maintenance');
       const data = await getMaintenanceTickets();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         const mapped: TicketRow[] = (data.data as Record<string, unknown>[]).map((t) => ({
             id: t.id as string,
             title: t.title as string,

@@ -40,7 +40,7 @@ export default function TrustPage() {
     try {
       const { getTrustScores } = await import('@/lib/actions/trust');
       const data = await getTrustScores();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         const mapped: TrustRow[] = (data.data as Record<string, unknown>[]).map((t: Record<string, unknown>) => ({
             user: ((t.user as Record<string, unknown>)?.full_name as string) || 'Unknown',
             score: Number(t.score) || 0,

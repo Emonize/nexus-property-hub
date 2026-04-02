@@ -307,7 +307,7 @@ export default function SpacesPage() {
     try {
       const { getSpaces } = await import('@/lib/actions/spaces');
       const data = await getSpaces();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         setSpaces(data.data);
         setIsLive(true);
       }

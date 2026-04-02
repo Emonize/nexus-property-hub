@@ -282,7 +282,7 @@ export default function LeasesPage() {
     try {
       const { getLeases } = await import('@/lib/actions/leases');
       const data = await getLeases();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         const mapped: LeaseRow[] = (data.data as Record<string, unknown>[]).map(l => ({
             id: l.id as string,
             space_name: (l.space as Record<string, unknown>)?.name as string || 'Unknown',

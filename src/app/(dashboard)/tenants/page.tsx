@@ -27,7 +27,7 @@ export default function TenantsPage() {
     try {
       const { getTenants } = await import('@/lib/actions/tenants');
       const data = await getTenants();
-      if (data?.data && data.data.length > 0) {
+      if (data && !data.error && data.data) {
         const mapped: TenantRow[] = (data.data as Record<string, unknown>[]).map(t => ({
             name: (t.full_name as string) || 'Unknown',
             email: (t.email as string) || '',

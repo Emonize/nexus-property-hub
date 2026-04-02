@@ -71,25 +71,21 @@ function DashboardContent() {
       let liveSpacesData: Space[] = [];
 
       // Fetch KPIs
-      const kpiRes = await fetch('/api/dashboard/kpis');
-      if (kpiRes.ok) {
-        const kpiData = await kpiRes.json();
-        if (kpiData?.data) {
-          liveKpiData = kpiData.data;
-          if (kpiData.data.totalPayments > 0 || kpiData.data.urgentRepairs > 0) {
-            isLiveKpis = true;
-          }
+      const { getDashboardKPIs } = await import('@/lib/actions/payments');
+      const kpiData = await getDashboardKPIs();
+      if (kpiData?.data) {
+        liveKpiData = kpiData.data;
+        if (kpiData.data.totalPayments > 0 || kpiData.data.urgentRepairs > 0) {
+          isLiveKpis = true;
         }
       }
 
       // Fetch spaces
-      const spacesRes = await fetch('/api/dashboard/spaces');
-      if (spacesRes.ok) {
-        const spacesData = await spacesRes.json();
-        if (spacesData?.data && spacesData.data.length > 0) {
-          liveSpacesData = spacesData.data;
-          isLiveSpaces = true;
-        }
+      const { getSpaces } = await import('@/lib/actions/spaces');
+      const spacesData = await getSpaces();
+      if (spacesData && !spacesData.error && spacesData.data) {
+        liveSpacesData = spacesData.data;
+        isLiveSpaces = true;
       }
 
       // Core logic: If user is strictly not in demo mode, ALWAYS sync the exact database state (even if empty zeros).
@@ -115,11 +111,33 @@ function DashboardContent() {
       }
 
       // Fetch action queue items
-      const actionsRes = await fetch('/api/dashboard/actions');
-      if (actionsRes.ok && !isDemoMode) {
-        const actionsData = await actionsRes.json();
-        if (actionsData?.items) {
-          setActions(actionsData.items);
+      if (!isDemoMode) {
+        const { getActionQueueItems } = await import('@/lib/actions/maintenance');
+        const actionsData = await getActionQueueItems();
+        if (actionsData) {
+          const formattedActions = [
+            ...(actionsData.tickets.map(t => ({
+              id: t.id,
+              type: 'maintenance' as const,
+              title: t.title,
+              subtitle: `Space: ${(t.space as Record<string,unknown>)?.name || 'Unknown'}`,
+              timestamp: 'Just now',
+              severity: t.ai_severity === 'critical' ? 'critical' : t.ai_severity === 'high' ? 'high' : 'medium',
+              cta: 'View',
+              amount: 0,
+            }))),
+            ...(actionsData.payments.map(p => ({
+              id: String(p.id),
+              type: 'payment' as const,
+              title: `Late Rent: $${Number(p.amount)}`,
+              subtitle: `Tenant: ${(p.tenant as Record<string,unknown>)?.full_name || 'Unknown'} | Due: ${p.due_date}`,
+              timestamp: p.due_date as string,
+              severity: undefined,
+              cta: 'Review',
+              amount: Number(p.amount),
+            })))
+          ];
+          if (formattedActions.length > 0) setActions(formattedActions);
         }
       }
     } catch {
