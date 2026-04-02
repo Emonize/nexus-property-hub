@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import PulseBar from '@/components/dashboard/PulseBar';
 import MoneyMap from '@/components/dashboard/MoneyMap';
 import ActionQueue from '@/components/dashboard/ActionQueue';
@@ -47,12 +47,20 @@ const demoActions = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [kpis, setKpis] = useState<DashboardKPIs>(demoKPIs);
-  const [spaces, setSpaces] = useState<Space[]>(demoSpaces);
-  const [treemapData, setTreemapData] = useState(demoTreemapData);
-  const [actions, setActions] = useState(demoActions);
+  const searchParams = useSearchParams();
+  const isDemoMode = searchParams.get('demo') === 'true';
+
+  const emptyKPIs: DashboardKPIs = {
+    totalCashFlow: 0, cashFlowTrend: [], collectionRate: 0,
+    totalPayments: 0, collectedPayments: 0, urgentRepairs: 0, criticalRepairs: 0
+  };
+
+  const [kpis, setKpis] = useState<DashboardKPIs>(isDemoMode ? demoKPIs : emptyKPIs);
+  const [spaces, setSpaces] = useState<Space[]>(isDemoMode ? demoSpaces : []);
+  const [treemapData, setTreemapData] = useState(isDemoMode ? demoTreemapData : []);
+  const [actions, setActions] = useState(isDemoMode ? demoActions : []);
   const [mounted, setMounted] = useState(false);
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(!isDemoMode);
   const [dismissedActions, setDismissedActions] = useState<Set<string>>(new Set());
 
   const fetchDashboardData = useCallback(async () => {
@@ -84,49 +92,40 @@ export default function DashboardPage() {
         }
       }
 
-      // Core logic: If user has live spaces OR live KPIs, present their real dashboard (even if KPIs are $0).
-      // Otherwise, keep the demo state entirely intact for a seamless onboarding preview.
-      if (isLiveSpaces || isLiveKpis) {
+      // Core logic: If user is strictly not in demo mode, ALWAYS sync the exact database state (even if empty zeros).
+      if (!isDemoMode) {
         setIsLive(true);
         if (liveKpiData) setKpis(liveKpiData);
         
-        if (isLiveSpaces) {
-          setSpaces(liveSpacesData);
-          const rentable = liveSpacesData.filter((s: Space) => s.base_rent && Number(s.base_rent) > 0);
-          if (rentable.length > 0) {
-            setTreemapData(
-              rentable.map((s: Space) => ({
-                id: s.id,
-                name: s.name,
-                type: s.type,
-                rent: Number(s.base_rent) || 0,
-                status: s.status === 'occupied' ? ('paid' as const) : s.status === 'vacant' ? ('vacant' as const) : ('pending' as const),
-              }))
-            );
-          } else {
-            setTreemapData([]);
-          }
+        setSpaces(liveSpacesData);
+        const rentable = liveSpacesData.filter((s: Space) => s.base_rent && Number(s.base_rent) > 0);
+        if (rentable.length > 0) {
+          setTreemapData(
+            rentable.map((s: Space) => ({
+              id: s.id,
+              name: s.name,
+              type: s.type,
+              rent: Number(s.base_rent) || 0,
+              status: s.status === 'occupied' ? ('paid' as const) : s.status === 'vacant' ? ('vacant' as const) : ('pending' as const),
+            }))
+          );
         } else {
-          setSpaces([]);
           setTreemapData([]);
         }
       }
 
       // Fetch action queue items
       const actionsRes = await fetch('/api/dashboard/actions');
-      if (actionsRes.ok) {
+      if (actionsRes.ok && !isDemoMode) {
         const actionsData = await actionsRes.json();
-        if (actionsData?.items && actionsData.items.length > 0) {
+        if (actionsData?.items) {
           setActions(actionsData.items);
-        } else if (isLiveSpaces || isLiveKpis) {
-          // Prevent demo actions from rendering on a real live dashboard
-          setActions([]);
         }
       }
     } catch {
-      // Graceful fallback — keep demo data
+      // API error handler
     }
-  }, []);
+  }, [isDemoMode]);
 
   useEffect(() => {
     setMounted(true);
