@@ -51,12 +51,14 @@ export async function signOut() {
 export async function signInWithGoogle() {
   const supabase = await createClient();
   const headersList = await headers();
-  // Next.js Server actions occasionally drop 'origin' on same-origin POSTs. 'host' is bulletproof.
   const protocol = headersList.get('x-forwarded-proto') || 'https';
   const host = headersList.get('host') || headersList.get('x-forwarded-host');
   const dynamicOrigin = host ? `${protocol}://${host}` : undefined;
   
-  const origin = dynamicOrigin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const isProduction = process.env.NODE_ENV === 'production';
+  const fallback = isProduction ? 'https://nexus-property-hub.vercel.app' : 'http://localhost:3000';
+  
+  const origin = dynamicOrigin || process.env.NEXT_PUBLIC_APP_URL || fallback;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
