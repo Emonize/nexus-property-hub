@@ -1,11 +1,15 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/actions/auth';
 
 export async function getTenants() {
+  const profile = await getCurrentUser();
+  if (!profile || (profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin')) {
+    return { error: 'Unauthorized Directory Access', data: [] };
+  }
+  
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized', data: [] };
 
   const { data, error } = await supabase
     .from('users')

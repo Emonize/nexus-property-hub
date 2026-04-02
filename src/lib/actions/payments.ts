@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUser } from '@/lib/actions/auth';
 import type { RentPayment, PaymentStatus, DashboardKPIs } from '@/types/database';
 
 export async function createPaymentForLease(leaseId: string, dueDate: string) {
@@ -113,6 +114,15 @@ export async function getPayments(filters?: { status?: PaymentStatus; tenantId?:
   if (filters?.status) query = query.eq('status', filters.status);
   if (filters?.tenantId) query = query.eq('tenant_id', filters.tenantId);
 
+  // RBAC Boundary Interception
+  const profile = await getCurrentUser();
+  if (profile?.role === 'tenant') {
+    query = query.eq('tenant_id', profile.id);
+  } else if (profile?.role === 'vendor') {
+    // Vendors do not interact with rent payments. Return empty query builder context.
+    query = query.eq('id', 'void').limit(0);
+  }
+
   const { data, error } = await query;
   if (error) return { error: error.message, data: [] };
   return { data };
@@ -120,6 +130,15 @@ export async function getPayments(filters?: { status?: PaymentStatus; tenantId?:
 
 export async function getDashboardKPIs(): Promise<{ data?: DashboardKPIs; error?: string }> {
   const supabase = await createClient();
+  const profile = await getCurrentUser();
+
+  // Enforce zero-state block for non-owners fetching portfolio metrics
+  if (profile?.role === 'tenant' || profile?.role === 'vendor') {
+    return { data: {
+      totalCashFlow: 0, cashFlowTrend: [], collectionRate: 0,
+      totalPayments: 0, collectedPayments: 0, urgentRepairs: 0, criticalRepairs: 0
+    }};
+  }
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];

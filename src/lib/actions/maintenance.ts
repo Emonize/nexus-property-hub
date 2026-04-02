@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUser } from '@/lib/actions/auth';
 import type { MaintenanceTicket, TicketSeverity, TicketStatus } from '@/types/database';
 
 export async function createMaintenanceTicket(formData: {
@@ -101,6 +102,14 @@ export async function getMaintenanceTickets(filters?: { status?: TicketStatus; s
   if (filters?.severity) query = query.eq('ai_severity', filters.severity);
   if (filters?.spaceId) query = query.eq('space_id', filters.spaceId);
 
+  // RBAC Boundary Enforcement
+  const profile = await getCurrentUser();
+  if (profile?.role === 'tenant') {
+    query = query.eq('reporter_id', profile.id);
+  } else if (profile?.role === 'vendor') {
+    query = query.eq('assigned_to', profile.id);
+  }
+
   const { data, error } = await query;
   if (error) return { error: error.message, data: [] };
   return { data };
@@ -109,26 +118,52 @@ export async function getMaintenanceTickets(filters?: { status?: TicketStatus; s
 export async function getActionQueueItems() {
   const supabase = await createClient();
 
-  // Combine maintenance tickets, pending payments, and lease actions
-  const [tickets, payments, leases] = await Promise.all([
-    supabase
+  const profile = await getCurrentUser();
+  const isTenant = profile?.role === 'tenant';
+  const isVendor = profile?.role === 'vendor';
+
+  let ticketsQuery = supabase
       .from('maintenance_tickets')
       .select(`*, space:spaces(name)`)
       .in('status', ['open', 'triaged'])
       .order('priority', { ascending: true })
-      .limit(10),
-    supabase
+      .limit(10);
+      
+  let paymentsQuery = supabase
       .from('rent_payments')
       .select(`*, lease:leases(space:spaces(name)), tenant:users!rent_payments_tenant_id_fkey(full_name)`)
       .in('status', ['pending', 'failed'])
       .order('due_date', { ascending: true })
-      .limit(10),
-    supabase
+      .limit(10);
+      
+  let leasesQuery = supabase
       .from('leases')
       .select(`*, space:spaces(name), tenant:users!leases_tenant_id_fkey(full_name)`)
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
-      .limit(10),
+      .limit(10);
+
+  // RBAC Filter Interception
+  // (Note: If Vendor, they have no payments/leases conceptually in this MVP context)
+  if (isTenant) {
+    if (profile?.id) {
+      ticketsQuery = ticketsQuery.eq('reporter_id', profile.id);
+      paymentsQuery = paymentsQuery.eq('tenant_id', profile.id);
+      leasesQuery = leasesQuery.eq('tenant_id', profile.id);
+    }
+  } else if (isVendor) {
+    if (profile?.id) {
+      ticketsQuery = ticketsQuery.eq('assigned_to', profile.id);
+      // Vendors don't interact with leases or rent payments.
+      paymentsQuery = supabase.from('rent_payments').select('*').eq('id', 'void').limit(0); 
+      leasesQuery = supabase.from('leases').select('*').eq('id', 'void').limit(0);
+    }
+  }
+
+  const [tickets, payments, leases] = await Promise.all([
+    ticketsQuery,
+    paymentsQuery,
+    leasesQuery,
   ]);
 
   return {

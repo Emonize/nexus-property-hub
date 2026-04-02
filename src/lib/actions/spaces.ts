@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUser } from '@/lib/actions/auth';
 import type { Space, SpaceType, SpaceStatus } from '@/types/database';
 
 const MAX_DEPTH = 6;
@@ -130,12 +131,17 @@ export async function getSpaceTree(rootId: string) {
 
 export async function getSpaces() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized', data: [] };
+  const profile = await getCurrentUser();
+
+  if (!profile || (profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin')) {
+    // Tenants and Vendors do not construct space hierarchies. Abort payload.
+    return { error: 'Unauthorized UI Climber: Restricting Space Fetches', data: [] };
+  }
 
   const { data, error } = await supabase
     .from('spaces')
     .select('*')
+    .eq('owner_id', profile.id)
     .order('created_at', { ascending: true });
 
   if (error) return { error: error.message, data: [] };

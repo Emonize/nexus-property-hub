@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUser } from '@/lib/actions/auth';
 import type { Lease, LeaseType, LeaseStatus } from '@/types/database';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -122,10 +123,22 @@ export async function updateLeaseStatus(leaseId: string, status: LeaseStatus) {
 
 export async function getLeases() {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const profile = await getCurrentUser();
+  
+  if (profile?.role === 'vendor') {
+    return { error: 'Unauthorized UI Climber: Restricting Leases Fetches', data: [] };
+  }
+
+  let query = supabase
     .from('leases')
     .select(`*, space:spaces(*), tenant:users!leases_tenant_id_fkey(*)`)
     .order('created_at', { ascending: false });
+
+  if (profile?.role === 'tenant') {
+    query = query.eq('tenant_id', profile.id);
+  }
+
+  const { data, error } = await query;
 
   if (error) return { error: error.message, data: [] };
   return { data: data as Lease[] };

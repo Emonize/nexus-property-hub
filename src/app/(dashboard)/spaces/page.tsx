@@ -5,6 +5,8 @@ import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
 import { Plus, Search, Filter, Map, X, Loader2, Pencil } from 'lucide-react';
 import type { Space, SpaceType, SpaceStatus } from '@/types/database';
 import { createSpace, updateSpace, deleteSpace, reparentSpace } from '@/lib/actions/spaces';
+import { getCurrentUser } from '@/lib/actions/auth';
+import { useRouter } from 'next/navigation';
 
 const SPACE_TYPES: { value: SpaceType; label: string; icon: string }[] = [
   { value: 'building', label: 'Building', icon: '🏢' },
@@ -283,6 +285,7 @@ function SpaceFormModal({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function SpacesPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
@@ -304,8 +307,15 @@ export default function SpacesPage() {
   }, []);
 
   useEffect(() => {
-    fetchSpaces();
-  }, [fetchSpaces]);
+    // Route Boundary Guard
+    getCurrentUser().then(profile => {
+      if (profile && profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin') {
+        router.push('/dashboard');
+      } else {
+        fetchSpaces();
+      }
+    });
+  }, [fetchSpaces, router]);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
