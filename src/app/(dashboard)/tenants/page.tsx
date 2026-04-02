@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, Mail, Phone, Shield } from 'lucide-react';
+import { Search, Plus, Mail, Phone, Shield, Users } from 'lucide-react';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface TenantRow {
   name: string;
@@ -94,9 +95,11 @@ export default function TenantsPage() {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="nexus-card" style={{ padding: 40, textAlign: 'center', color: 'var(--nexus-text-muted)' }}>
-            No tenants found
-          </div>
+          <EmptyState
+            icon={Users}
+            title="No Tenants Found"
+            description="You do not have any active tenants registered in your portfolio yet."
+          />
         )}
       </div>
     </div>

@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { FileText, Plus, Users, Calendar, Search, X, Loader2 } from 'lucide-react';
 import type { LeaseStatus, LeaseType, Space } from '@/types/database';
 import { createLease } from '@/lib/actions/leases';
+import EmptyState from '@/components/ui/EmptyState';
+import toast from 'react-hot-toast';
 
 interface LeaseRow {
   id: string;
@@ -53,7 +55,6 @@ function NewLeaseModal({
   const [splitPct, setSplitPct] = useState('100');
   const [autoRenew, setAutoRenew] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
 
   // Available spaces for dropdown
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -82,19 +83,17 @@ function NewLeaseModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    if (!spaceId) { setError('Please select a space'); return; }
-    if (!tenantEmail && tenants.length === 0) { setError('Please enter a tenant email'); return; }
-    if (!monthlyRent || Number(monthlyRent) <= 0) { setError('Please enter a valid monthly rent'); return; }
+    if (!spaceId) { toast.error('Please select a space'); return; }
+    if (!tenantEmail && tenants.length === 0) { toast.error('Please enter a tenant email'); return; }
+    if (!monthlyRent || Number(monthlyRent) <= 0) { toast.error('Please enter a valid monthly rent'); return; }
 
     // Resolve tenant ID
     let tenantId = '';
     if (tenants.length > 0 && tenantEmail) {
-      // tenantEmail here is actually the selected tenant ID from the dropdown
       tenantId = tenantEmail;
     } else {
-      setError('No tenants available. Please add tenants first.');
+      toast.error('No tenants available. Please add tenants first.');
       return;
     }
 
@@ -114,9 +113,10 @@ function NewLeaseModal({
     });
 
     if (result.error) {
-      setError(result.error);
+      toast.error(result.error);
       setSaving(false);
     } else {
+      toast.success('Lease generated successfully');
       onSuccess();
       onClose();
     }
@@ -235,16 +235,6 @@ function NewLeaseModal({
             </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <div style={{
-              padding: '10px 14px', borderRadius: 8, marginBottom: 16,
-              background: 'rgba(234, 67, 53, 0.1)', border: '1px solid rgba(234, 67, 53, 0.2)',
-              color: 'var(--nexus-critical)', fontSize: 13,
-            }}>
-              {error}
-            </div>
-          )}
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
@@ -362,9 +352,13 @@ export default function LeasesPage() {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="nexus-card" style={{ padding: 40, textAlign: 'center', color: 'var(--nexus-text-muted)' }}>
-            No leases found
-          </div>
+          <EmptyState
+            icon={FileText}
+            title="No Active Leases"
+            description="You do not have any active lease documents mapping tenants to spaces."
+            actionLabel="Create Lease"
+            onAction={() => setShowNewModal(true)}
+          />
         )}
       </div>
 

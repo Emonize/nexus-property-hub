@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CopilotDrawer from '@/components/chat/CopilotDrawer';
 import {
   LayoutDashboard,
@@ -11,13 +11,15 @@ import {
   CreditCard,
   Wrench,
   Shield,
-  Bell,
-  Settings,
-  LogOut,
   Users,
   Mic,
   Layers,
   Sparkles,
+  Menu,
+  X as XIcon,
+  Bell,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { signOut } from '@/lib/actions/auth';
 
@@ -54,15 +56,53 @@ const bottomItems = [
 export default function Sidebar({ role }: { role: string }) {
   const pathname = usePathname();
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Close sidebar on navigation in mobile
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   const navItems = role === 'tenant' ? tenantNav : role === 'vendor' ? vendorNav : ownerNav;
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">N</div>
-        <span className="sidebar-logo-text">Rentova</span>
+    <>
+      {/* Mobile Topbar */}
+      <div className="mobile-topbar" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, height: 64,
+        background: 'var(--nexus-bg-elevated)', borderBottom: '1px solid var(--nexus-border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px',
+        zIndex: 1500
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="sidebar-logo-icon" style={{ width: 32, height: 32, fontSize: 14 }}>N</div>
+          <span className="sidebar-logo-text" style={{ fontSize: 18 }}>Rentova</span>
+        </div>
+        <button onClick={() => setIsMobileOpen(true)} className="btn-secondary" style={{ padding: 8 }}>
+          <Menu size={20} />
+        </button>
       </div>
+
+      {/* Backdrop */}
+      {isMobileOpen && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1999, backdropFilter: 'blur(4px)' }}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      <aside className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
+        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="sidebar-logo-icon">N</div>
+            <span className="sidebar-logo-text">Rentova</span>
+          </div>
+          {isMobileOpen && (
+            <button onClick={() => setIsMobileOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--nexus-text-secondary)' }}>
+              <XIcon size={20} />
+            </button>
+          )}
+        </div>
 
       <nav className="sidebar-nav">
         {navItems.map((item) => {
@@ -126,5 +166,6 @@ export default function Sidebar({ role }: { role: string }) {
 
       <CopilotDrawer role={role} isOpen={isCopilotOpen} onClose={() => setIsCopilotOpen(false)} />
     </aside>
+    </>
   );
 }

@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
-import { Plus, Search, Filter, Map, X, Loader2, Pencil } from 'lucide-react';
+import { Plus, Search, Filter, Map, X, Loader2, Pencil, Building2 } from 'lucide-react';
 import type { Space, SpaceType, SpaceStatus } from '@/types/database';
 import { createSpace, updateSpace, deleteSpace, reparentSpace } from '@/lib/actions/spaces';
 import { getCurrentUser } from '@/lib/actions/auth';
 import { useRouter } from 'next/navigation';
+import EmptyState from '@/components/ui/EmptyState';
+import toast from 'react-hot-toast';
 
 const SPACE_TYPES: { value: SpaceType; label: string; icon: string }[] = [
   { value: 'building', label: 'Building', icon: '🏢' },
@@ -64,7 +66,6 @@ function SpaceFormModal({
   const [zip, setZip] = useState(addr?.zip || '');
   const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || []);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
 
   const isTopLevel = mode === 'create' ? !parentId : !initialData?.parent_id;
 
@@ -74,10 +75,9 @@ function SpaceFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { setError('Name is required'); return; }
+    if (!name.trim()) { toast.error('Name is required'); return; }
 
     setSaving(true);
-    setError('');
 
     const address = street || city || state || zip
       ? { street, city, state, zip, country: 'US' }
@@ -94,9 +94,10 @@ function SpaceFormModal({
         amenities,
       });
       if (result.error) {
-        setError(result.error);
+        toast.error(result.error);
         setSaving(false);
       } else {
+        toast.success('Space updated successfully');
         onSuccess();
         onClose();
       }
@@ -112,9 +113,10 @@ function SpaceFormModal({
         status,
       });
       if (result.error) {
-        setError(result.error);
+        toast.error(result.error);
         setSaving(false);
       } else {
+        toast.success('Space created successfully');
         onSuccess();
         onClose();
       }
@@ -253,17 +255,6 @@ function SpaceFormModal({
             ))}
           </div>
 
-          {/* Error */}
-          {error && (
-            <div style={{
-              padding: '10px 14px', borderRadius: 8, marginBottom: 16,
-              background: 'rgba(234, 67, 53, 0.1)', border: '1px solid rgba(234, 67, 53, 0.2)',
-              color: 'var(--nexus-critical)', fontSize: 13,
-            }}>
-              {error}
-            </div>
-          )}
-
           {/* Actions */}
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
             <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
@@ -321,8 +312,11 @@ export default function SpacesPage() {
     setDeleting(true);
     const result = await deleteSpace(id);
     if (!result.error) {
+      toast.success('Space deleted');
       setSelectedSpace(null);
       fetchSpaces();
+    } else {
+      toast.error(result.error);
     }
     setDeleting(false);
   };
@@ -428,13 +422,23 @@ export default function SpacesPage() {
         <button className="btn-secondary"><Map size={16} /> Map View</button>
       </div>
 
-      {/* Hierarchy */}
-      <HierarchyNavigator
-        spaces={filteredSpaces}
-        onSelect={setSelectedSpace}
-        onReparent={handleReparent}
-        onAdd={(parentId) => openAddModal(parentId)}
-      />
+      {/* Hierarchy or Empty State */}
+      {spaces.length === 0 ? (
+        <EmptyState
+          icon={Building2}
+          title="No Spaces Yet"
+          description="Create your first building, home, or unit to start managing your portfolio."
+          actionLabel="Add Property"
+          onAction={() => openAddModal(null)}
+        />
+      ) : (
+        <HierarchyNavigator
+          spaces={filteredSpaces}
+          onSelect={setSelectedSpace}
+          onReparent={handleReparent}
+          onAdd={(parentId) => openAddModal(parentId)}
+        />
+      )}
 
       {/* Detail Panel */}
       {selectedSpace && (

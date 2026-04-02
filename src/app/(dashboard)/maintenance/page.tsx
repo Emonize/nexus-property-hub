@@ -1,4 +1,5 @@
 'use client';
+import EmptyState from '@/components/ui/EmptyState';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Wrench, Plus, Camera, Mic } from 'lucide-react';
@@ -162,9 +163,11 @@ export default function MaintenancePage() {
           </div>
         ))}
         {tickets.length === 0 && (
-          <div className="nexus-card" style={{ padding: 40, textAlign: 'center', color: 'var(--nexus-text-muted)' }}>
-            No maintenance tickets found
-          </div>
+          <EmptyState
+            icon={Wrench}
+            title="Zero Maintenance Requests"
+            description="Your properties are perfectly maintained. No active service tickets rest in your queue."
+          />
         )}
       </div>
     </div>
