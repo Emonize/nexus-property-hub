@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PulseBar from '@/components/dashboard/PulseBar';
 import MoneyMap from '@/components/dashboard/MoneyMap';
@@ -45,7 +45,7 @@ const demoActions = [
   { id: '3', type: 'lease' as const, title: 'New application received', subtitle: 'Unit 3C · Jamie Wilson · Trust: 780', timestamp: new Date(Date.now() - 7200000).toISOString(), severity: undefined, cta: 'Review', amount: undefined },
 ];
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDemoMode = searchParams.get('demo') === 'true';
@@ -204,5 +204,13 @@ export default function DashboardPage() {
         onAdd={() => router.push('/spaces')}
       />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 48, color: 'var(--nexus-text-secondary)', textAlign: 'center' }}>Loading Dashboard Engine...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
