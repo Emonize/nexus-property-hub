@@ -78,75 +78,104 @@ export default function TrustPage() {
         </div>
       </div>
 
-      {/* Score Breakdown Legend */}
-      <div className="nexus-card" style={{ marginBottom: 24, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-        {[
-          { label: 'Payment History', weight: '35%', color: 'var(--nexus-primary-light)' },
-          { label: 'Background Check', weight: '25%', color: 'var(--nexus-accent)' },
-          { label: 'Credit Score', weight: '20%', color: 'var(--nexus-info)' },
-          { label: 'Eviction History', weight: '10%', color: 'var(--nexus-warning)' },
-          { label: 'Peer Reviews', weight: '10%', color: 'var(--nexus-positive)' },
-        ].map(f => (
-          <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 3, background: f.color }} />
-            <span style={{ color: 'var(--nexus-text-secondary)' }}>{f.label}</span>
-            <span style={{ fontWeight: 700, color: f.color }}>{f.weight}</span>
+      {scores.length === 0 ? (
+        <div className="nexus-card fade-in" style={{ padding: 60, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: 80, height: 80, borderRadius: 20, background: 'rgba(66, 133, 244, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+            <Shield size={40} style={{ color: 'var(--nexus-accent)' }} />
           </div>
-        ))}
-      </div>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Unlock AI Trust Scoring</h2>
+          <p style={{ color: 'var(--nexus-text-secondary)', maxWidth: 460, margin: '0 auto 32px', lineHeight: 1.6 }}>
+            NexusHub automatically evaluates every tenant across 5 critical risk dimensions to compute a deterministic reliability score.
+          </p>
 
-      {/* Score Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {scores.map((t, i) => (
-          <div key={t.user + i} className="nexus-card slide-up" style={{ animationDelay: `${i * 80}ms` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-              {/* Score Ring */}
-              <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
-                <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}>
-                  <circle cx="45" cy="45" r="38" fill="none" stroke="var(--nexus-border)" strokeWidth="6" />
-                  <circle cx="45" cy="45" r="38" fill="none" stroke={getScoreColor(t.score)} strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${2 * Math.PI * 38}`}
-                    strokeDashoffset={`${2 * Math.PI * 38 * (1 - t.score / 1000)}`}
-                    style={{ transition: 'stroke-dashoffset 1s ease' }} />
-                </svg>
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: getScoreColor(t.score) }}>{t.score}</div>
-                </div>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', background: 'var(--nexus-bg-hover)', padding: '24px 32px', borderRadius: 16, marginBottom: 32 }}>
+            {[
+              { label: 'Payment History', weight: '35%', color: 'var(--nexus-primary-light)' },
+              { label: 'Background Check', weight: '25%', color: 'var(--nexus-accent)' },
+              { label: 'Credit Score', weight: '20%', color: 'var(--nexus-info)' },
+              { label: 'Eviction History', weight: '10%', color: 'var(--nexus-warning)' },
+              { label: 'Peer Reviews', weight: '10%', color: 'var(--nexus-positive)' },
+            ].map(f => (
+              <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 3, background: f.color }} />
+                <span style={{ color: 'var(--nexus-text-secondary)' }}>{f.label}</span>
+                <span style={{ fontWeight: 700, color: f.color }}>{f.weight}</span>
               </div>
+            ))}
+          </div>
 
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontWeight: 700, fontSize: 18 }}>{t.user}</span>
-                  <span className={`badge ${t.score >= 800 ? 'badge-positive' : t.score >= 600 ? 'badge-warning' : 'badge-critical'}`}>
-                    {getScoreLabel(t.score)}
-                  </span>
-                </div>
+          <button className="btn-primary" style={{ padding: '0 24px', height: 44 }} onClick={() => window.location.href = '/tenants'}>
+            Invite a Tenant
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Score Breakdown Legend */}
+          <div className="nexus-card fade-in" style={{ marginBottom: 24, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Payment History', weight: '35%', color: 'var(--nexus-primary-light)' },
+              { label: 'Background Check', weight: '25%', color: 'var(--nexus-accent)' },
+              { label: 'Credit Score', weight: '20%', color: 'var(--nexus-info)' },
+              { label: 'Eviction History', weight: '10%', color: 'var(--nexus-warning)' },
+              { label: 'Peer Reviews', weight: '10%', color: 'var(--nexus-positive)' },
+            ].map(f => (
+              <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 3, background: f.color }} />
+                <span style={{ color: 'var(--nexus-text-secondary)' }}>{f.label}</span>
+                <span style={{ fontWeight: 700, color: f.color }}>{f.weight}</span>
+              </div>
+            ))}
+          </div>
 
-                <div className="grid-4" style={{ marginTop: 12, gap: 12 }}>
-                  {[
-                    { label: 'Payment', value: `${t.payment}%`, color: 'var(--nexus-primary-light)' },
-                    { label: 'Background', value: t.bg, color: t.bg === 'clear' ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
-                    { label: 'Credit', value: t.credit, color: t.credit >= 700 ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
-                    { label: 'Reviews', value: `${t.review}/5`, color: 'var(--nexus-accent)' },
-                  ].map(f => (
-                    <div key={f.label}>
-                      <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{f.label}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: f.color, marginTop: 2, fontFamily: 'var(--font-display)' }}>{f.value}</div>
+          {/* Score Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {scores.map((t, i) => (
+              <div key={t.user + i} className="nexus-card slide-up" style={{ animationDelay: `${i * 80}ms` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                  {/* Score Ring */}
+                  <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
+                    <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}>
+                      <circle cx="45" cy="45" r="38" fill="none" stroke="var(--nexus-border)" strokeWidth="6" />
+                      <circle cx="45" cy="45" r="38" fill="none" stroke={getScoreColor(t.score)} strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 38}`}
+                        strokeDashoffset={`${2 * Math.PI * 38 * (1 - t.score / 1000)}`}
+                        style={{ transition: 'stroke-dashoffset 1s ease' }} />
+                    </svg>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
+                      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: getScoreColor(t.score) }}>{t.score}</div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 18 }}>{t.user}</span>
+                      <span className={`badge ${t.score >= 800 ? 'badge-positive' : t.score >= 600 ? 'badge-warning' : 'badge-critical'}`}>
+                        {getScoreLabel(t.score)}
+                      </span>
+                    </div>
+
+                    <div className="grid-4" style={{ marginTop: 12, gap: 12 }}>
+                      {[
+                        { label: 'Payment', value: `${t.payment}%`, color: 'var(--nexus-primary-light)' },
+                        { label: 'Background', value: t.bg, color: t.bg === 'clear' ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
+                        { label: 'Credit', value: t.credit, color: t.credit >= 700 ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
+                        { label: 'Reviews', value: `${t.review}/5`, color: 'var(--nexus-accent)' },
+                      ].map(f => (
+                        <div key={f.label}>
+                          <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{f.label}</div>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: f.color, marginTop: 2, fontFamily: 'var(--font-display)' }}>{f.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button className="btn-secondary" style={{ fontSize: 13 }}>Recompute</button>
                 </div>
               </div>
-
-              <button className="btn-secondary" style={{ fontSize: 13 }}>Recompute</button>
-            </div>
+            ))}
           </div>
-        ))}
-        {scores.length === 0 && (
-          <div className="nexus-card" style={{ padding: 40, textAlign: 'center', color: 'var(--nexus-text-muted)' }}>
-            No trust scores found
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
