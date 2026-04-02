@@ -27,6 +27,21 @@ export async function getTrustScore(userId: string) {
   return { data: data as TrustScore };
 }
 
+export async function getTrustScores() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('trust_scores')
+    .select(`
+      *,
+      user:users!trust_scores_user_id_fkey(full_name, email)
+    `)
+    .order('score', { ascending: false });
+
+  if (error) return { error: error.message, data: [] };
+  return { data };
+}
+
 export async function initiateBackgroundCheck(userId: string, personalInfo: {
   first_name: string;
   last_name: string;

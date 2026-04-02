@@ -305,13 +305,11 @@ export default function SpacesPage() {
 
   const fetchSpaces = useCallback(async () => {
     try {
-      const res = await fetch('/api/dashboard/spaces');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          setSpaces(data.data);
-          setIsLive(true);
-        }
+      const { getSpaces } = await import('@/lib/actions/spaces');
+      const data = await getSpaces();
+      if (data?.data && data.data.length > 0) {
+        setSpaces(data.data);
+        setIsLive(true);
       }
     } catch {
       // Keep demo data

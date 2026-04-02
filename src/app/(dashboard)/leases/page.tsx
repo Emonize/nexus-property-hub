@@ -69,14 +69,12 @@ function NewLeaseModal({
 
   useEffect(() => {
     // Fetch spaces
-    fetch('/api/dashboard/spaces')
-      .then(r => r.json())
+    import('@/lib/actions/spaces').then(m => m.getSpaces())
       .then(d => { if (d?.data) setSpaces(d.data); })
       .catch(() => {});
 
     // Fetch tenants
-    fetch('/api/tenants')
-      .then(r => r.json())
+    import('@/lib/actions/tenants').then(m => m.getTenants())
       .then(d => {
         if (d?.data) {
           setTenants(d.data.map((t: Record<string, unknown>) => ({
@@ -282,15 +280,14 @@ export default function LeasesPage() {
 
   const fetchLeases = useCallback(async () => {
     try {
-      const res = await fetch('/api/leases');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          const mapped: LeaseRow[] = data.data.map((l: Record<string, unknown>) => ({
-            id: l.id,
-            space_name: (l.space as Record<string, unknown>)?.name || 'Unknown',
-            tenant_name: (l.tenant as Record<string, unknown>)?.full_name || 'Unknown',
-            lease_type: l.lease_type === 'fixed' ? 'Fixed' : l.lease_type === 'month_to_month' ? 'Month-to-Month' : String(l.lease_type),
+      const { getLeases } = await import('@/lib/actions/leases');
+      const data = await getLeases();
+      if (data?.data && data.data.length > 0) {
+        const mapped: LeaseRow[] = (data.data as Record<string, unknown>[]).map(l => ({
+            id: l.id as string,
+            space_name: (l.space as Record<string, unknown>)?.name as string || 'Unknown',
+            tenant_name: ((l.tenant as Record<string, unknown>)?.full_name as string) || 'Unknown',
+            lease_type: (l.lease_type === 'fixed' ? 'Fixed' : l.lease_type === 'month_to_month' ? 'Month-to-Month' : String(l.lease_type)) as LeaseType | string,
             start_date: l.start_date as string,
             end_date: l.end_date as string | null,
             monthly_rent: Number(l.monthly_rent),
@@ -301,7 +298,6 @@ export default function LeasesPage() {
           setLeases(mapped);
           setIsLive(true);
         }
-      }
     } catch {
       // Keep demo data
     }

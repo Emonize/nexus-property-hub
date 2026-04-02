@@ -19,12 +19,23 @@ export async function POST(request: NextRequest) {
     const { function_name, parameters, call_id } = await request.json();
     const supabase = await createServiceClient();
 
+    // STRICT TENANT BOUNDARY ENFORCEMENT
+    // Service Client bypasses RLS. We MUST definitively scope queries to the intended landlord.
+    let ownerIdContext = process.env.VAPI_OWNER_ID;
+    if (!ownerIdContext) {
+      console.warn('⚠️ VAPI_OWNER_ID not set. Hard-locking to first registered landlord to prevent cross-tenant IDOR leak.');
+      const { data: firstAdmin } = await supabase.from('users').select('id').eq('role', 'landlord').order('created_at').limit(1).single();
+      if (!firstAdmin) return NextResponse.json({ error: 'No landlord defined in platform.' }, { status: 403 });
+      ownerIdContext = firstAdmin.id;
+    }
+
     const handlers: Record<string, (params: Record<string, unknown>) => Promise<{ speech: string; data?: unknown }>> = {
 
       check_rent_status: async ({ space_name }) => {
         const { data: space } = await supabase
           .from('spaces')
           .select('id, name')
+          .eq('owner_id', ownerIdContext)
           .ilike('name', `%${space_name}%`)
           .single();
 
@@ -49,6 +60,7 @@ export async function POST(request: NextRequest) {
         const { data: space } = await supabase
           .from('spaces')
           .select('id')
+          .eq('owner_id', ownerIdContext)
           .ilike('name', `%${space_name}%`)
           .single();
 
@@ -90,6 +102,7 @@ export async function POST(request: NextRequest) {
         let query = supabase
           .from('spaces')
           .select('name, type, area_sqft, base_rent')
+          .eq('owner_id', ownerIdContext)
           .eq('status', 'vacant');
 
         if (type) query = query.eq('type', type as string);
@@ -159,6 +172,7 @@ export async function POST(request: NextRequest) {
         const { data: space } = await supabase
           .from('spaces')
           .select('id, owner_id, name')
+          .eq('owner_id', ownerIdContext)
           .ilike('name', `%${space_name}%`)
           .single();
 
@@ -199,6 +213,7 @@ export async function POST(request: NextRequest) {
         const { data: space } = await supabase
           .from('spaces')
           .select('id, name')
+          .eq('owner_id', ownerIdContext)
           .ilike('name', `%${space_name}%`)
           .single();
 
@@ -229,6 +244,7 @@ export async function POST(request: NextRequest) {
         const { data: space } = await supabase
           .from('spaces')
           .select('id, name')
+          .eq('owner_id', ownerIdContext)
           .ilike('name', `%${space_name}%`)
           .single();
 

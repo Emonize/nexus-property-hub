@@ -29,7 +29,7 @@ export async function createLease(formData: {
     .in('status', ['active', 'pending']);
 
   let split_group_id: string | null = null;
-  let split_pct = formData.split_pct ?? 100;
+  const split_pct = formData.split_pct ?? 100;
 
   if (existingLeases && existingLeases.length > 0) {
     // Use existing split group or create one

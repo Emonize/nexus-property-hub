@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
   if (code) {
-    let response = NextResponse.redirect(`${rawOrigin}${next}`);
+    const response = NextResponse.redirect(`${rawOrigin}${next}`);
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

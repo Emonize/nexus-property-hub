@@ -25,21 +25,25 @@ export default function TenantsPage() {
 
   const fetchTenants = useCallback(async () => {
     try {
-      const res = await fetch('/api/tenants');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          const mapped: TenantRow[] = data.data.map((t: Record<string, unknown>) => ({
-            name: t.full_name || 'Unknown',
-            email: t.email || '',
-            phone: t.phone || '',
-            spaces: Array.isArray(t.leases) ? (t.leases as Record<string, unknown>[]).filter((l: Record<string, unknown>) => l.status === 'active').map((l: Record<string, unknown>) => (l.space as Record<string, unknown>)?.name || 'Unknown') : [],
-            trust: Array.isArray(t.trust) && (t.trust as Record<string, unknown>[]).length > 0 ? Number((t.trust as Record<string, unknown>[])[0].score) : 0,
+      const { getTenants } = await import('@/lib/actions/tenants');
+      const data = await getTenants();
+      if (data?.data && data.data.length > 0) {
+        const mapped: TenantRow[] = (data.data as Record<string, unknown>[]).map(t => ({
+            name: (t.full_name as string) || 'Unknown',
+            email: (t.email as string) || '',
+            phone: (t.phone as string) || '',
+            spaces: Array.isArray(t.leases) 
+              ? (t.leases as Record<string, unknown>[])
+                  .filter(l => l.status === 'active')
+                  .map(l => (l.space as Record<string, unknown>)?.name as string || 'Unknown') 
+              : [],
+            trust: Array.isArray(t.trust) && (t.trust as Record<string, unknown>[]).length > 0 
+              ? Number((t.trust as Record<string, unknown>[])[0].score) 
+              : 0,
             status: 'active',
           }));
           setTenants(mapped);
           setIsLive(true);
-        }
       }
     } catch {
       // Keep demo data

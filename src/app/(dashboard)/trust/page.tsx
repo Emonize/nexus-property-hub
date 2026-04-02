@@ -38,22 +38,20 @@ export default function TrustPage() {
 
   const fetchScores = useCallback(async () => {
     try {
-      const res = await fetch('/api/trust');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          const mapped: TrustRow[] = data.data.map((t: Record<string, unknown>) => ({
-            user: (t.user as Record<string, unknown>)?.full_name || 'Unknown',
+      const { getTrustScores } = await import('@/lib/actions/trust');
+      const data = await getTrustScores();
+      if (data?.data && data.data.length > 0) {
+        const mapped: TrustRow[] = (data.data as Record<string, unknown>[]).map((t: Record<string, unknown>) => ({
+            user: ((t.user as Record<string, unknown>)?.full_name as string) || 'Unknown',
             score: Number(t.score) || 0,
             payment: 0, // computed client-side from payment data
-            bg: t.bg_check_status || 'pending',
+            bg: (t.bg_check_status as string) || 'pending',
             credit: Number(t.credit_score) || 0,
             evictions: Number(t.eviction_count) || 0,
             review: Number(t.review_avg) || 0,
           }));
           setScores(mapped);
           setIsLive(true);
-        }
       }
     } catch {
       // Keep demo data

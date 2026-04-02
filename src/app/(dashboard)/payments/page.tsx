@@ -39,23 +39,21 @@ export default function PaymentsPage() {
 
   const fetchPayments = useCallback(async () => {
     try {
-      const res = await fetch('/api/payments');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          const mapped: PaymentRow[] = data.data.map((p: Record<string, unknown>) => ({
-            id: p.id,
-            tenant: (p.tenant as Record<string, unknown>)?.full_name || 'Unknown',
-            space: ((p.lease as Record<string, unknown>)?.space as Record<string, unknown>)?.name || 'Unknown',
+      const { getPayments } = await import('@/lib/actions/payments');
+      const data = await getPayments();
+      if (data?.data && data.data.length > 0) {
+        const mapped: PaymentRow[] = (data.data as Record<string, unknown>[]).map((p: Record<string, unknown>) => ({
+            id: p.id as string,
+            tenant: ((p.tenant as Record<string, unknown>)?.full_name as string) || 'Unknown',
+            space: (((p.lease as Record<string, unknown>)?.space as Record<string, unknown>)?.name as string) || 'Unknown',
             amount: Number(p.amount),
-            due_date: p.due_date,
-            paid_date: p.paid_date || null,
+            due_date: p.due_date as string,
+            paid_date: (p.paid_date as string) || null,
             status: p.status as PaymentStatus,
             method: p.stripe_payment_id ? 'Stripe' : null,
           }));
           setPayments(mapped);
           setIsLive(true);
-        }
       }
     } catch {
       // Keep demo data

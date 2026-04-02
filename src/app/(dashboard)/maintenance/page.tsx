@@ -37,25 +37,23 @@ export default function MaintenancePage() {
 
   const fetchTickets = useCallback(async () => {
     try {
-      const res = await fetch('/api/maintenance');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.data && data.data.length > 0) {
-          const mapped: TicketRow[] = data.data.map((t: Record<string, unknown>) => ({
-            id: t.id,
-            title: t.title,
-            space: (t.space as Record<string, unknown>)?.name || 'Unknown',
-            reporter: (t.reporter as Record<string, unknown>)?.full_name || 'Unknown',
-            severity: t.ai_severity || 'medium',
-            category: t.ai_category || 'general',
+      const { getMaintenanceTickets } = await import('@/lib/actions/maintenance');
+      const data = await getMaintenanceTickets();
+      if (data?.data && data.data.length > 0) {
+        const mapped: TicketRow[] = (data.data as Record<string, unknown>[]).map((t) => ({
+            id: t.id as string,
+            title: t.title as string,
+            space: ((t.space as Record<string, unknown>)?.name as string) || 'Unknown',
+            reporter: ((t.reporter as Record<string, unknown>)?.full_name as string) || 'Unknown',
+            severity: (t.ai_severity as string) || 'medium',
+            category: (t.ai_category as string) || 'general',
             cost_estimate: Number(t.ai_cost_estimate) || 0,
-            status: t.status,
+            status: t.status as string,
             created_at: t.created_at as string,
             diy_suggestion: t.ai_diy_suggestion as string | null,
           }));
           setTickets(mapped);
           setIsLive(true);
-        }
       }
     } catch {
       // Keep demo data
