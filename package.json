@@ -13,6 +13,7 @@
     "@stripe/stripe-js": "^9.0.1",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
+    "@vapi-ai/web": "^2.5.2",
     "d3": "^7.9.0",
     "d3-treemap": "^0.1.0",
     "date-fns": "^4.1.0",
