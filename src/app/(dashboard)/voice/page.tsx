@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Phone, PhoneOff, Loader2 } from 'lucide-react';
 import Vapi from '@vapi-ai/web';
 import toast from 'react-hot-toast';
+import { createSpace } from '@/lib/actions/spaces';
 
 const VAPI_PUBLIC_KEY = 'dd698ad7-d46e-41cf-b0cd-c36f1faa09ca';
 
@@ -34,12 +35,60 @@ export default function VoicePage() {
       setMessages(prev => [...prev, { role: 'ai', text: 'Call disconnected.' }]);
     });
 
-    vapiInstance.on('message', (message: any) => {
+    vapiInstance.on('message', async (message: any) => {
+      // Handle Speech Transcript
       if (message.type === 'transcript' && message.transcriptType === 'final') {
         setMessages(prev => [...prev, { role: message.role === 'user' ? 'user' : 'ai', text: message.transcript }]);
         setTimeout(() => {
           chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
         }, 100);
+      }
+      
+      // Handle Function/Tool Calling
+      if (message.type === 'tool-calls' && message.toolCallList) {
+        // Vapi passes an array of tools for execution
+        for (const tool of message.toolCallList) {
+          if (tool.function.name === 'createSpace') {
+             try {
+                toast.loading(`Vapi executing: createSpace...`, { id: 'vapi_tool' });
+                const args = tool.function.arguments; // JSON string or object
+                const parsed = typeof args === 'string' ? JSON.parse(args) : args;
+                
+                // Fire Server Action
+                const res = await createSpace({
+                  name: parsed.name,
+                  type: parsed.type || 'residential',
+                  base_rent: parsed.base_rent || 0,
+                  status: 'vacant'
+                });
+
+                if (res?.error) throw new Error(res.error);
+
+                toast.success(`Property ${parsed.name} created!`, { id: 'vapi_tool' });
+                setMessages(prev => [...prev, { role: 'ai', text: `*[Executed Database Operation: Created Space ${parsed.name}]*` }]);
+
+                // Pipe result back to Vapi so AI can speak confirmation
+                vapiInstance.send({
+                  type: 'add-message',
+                  message: {
+                    role: 'tool',
+                    tool_call_id: tool.id,
+                    content: `Successfully created property ${parsed.name} with ID ${res?.data?.id || 'unknown'}. Tell the user the operation succeeded.`,
+                  }
+                });
+             } catch (e: any) {
+                toast.error(`Database Error: ${e.message}`, { id: 'vapi_tool' });
+                vapiInstance.send({
+                  type: 'add-message',
+                  message: {
+                    role: 'tool',
+                    tool_call_id: tool.id,
+                    content: `Failed to create property. Error: ${e.message}. Tell the user it failed.`,
+                  }
+                });
+             }
+          }
+        }
       }
     });
 
@@ -68,8 +117,26 @@ export default function VoicePage() {
           model: "gpt-4",
           messages: [{
             role: "system",
-            content: "You are an AI assistant for a property management software called Rentova. You keep responses brief and helpful."
-          }]
+            content: "You are an AI assistant for a property management software called Rentova. You keep responses brief and helpful. You have authorization to create properties via the createSpace tool. If a user asks to add a property, always use the createSpace tool directly."
+          }],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "createSpace",
+                description: "Create a new property/space in the database. Call this whenever the user asks to add, create, or register a new property.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string", description: "The name of the property apartment or unit" },
+                    type: { type: "string", enum: ["residential", "commercial", "storage", "parking"], description: "The category type of the property" },
+                    base_rent: { type: "number", description: "The numerical monthly rent value in dollars" }
+                  },
+                  required: ["name", "type", "base_rent"]
+                }
+              }
+            }
+          ]
         },
         voice: {
           provider: "11labs",
