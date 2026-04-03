@@ -83,7 +83,8 @@ export default function CopilotDrawer({ isOpen, onClose, role = 'owner' }: Copil
       />
       <div 
         style={{
-          position: 'fixed', top: 0, right: 0, bottom: 0, width: 400,
+          position: 'fixed', top: 0, right: 0, width: '100%', maxWidth: 400,
+          height: '100dvh',
           background: 'var(--nexus-bg)', zIndex: 9999,
           boxShadow: '-4px 0 24px rgba(0,0,0,0.1)',
           display: 'flex', flexDirection: 'column',
@@ -145,7 +146,7 @@ export default function CopilotDrawer({ isOpen, onClose, role = 'owner' }: Copil
         </div>
 
         {/* Input */}
-        <div style={{ padding: 20, borderTop: '1px solid var(--nexus-border)', background: 'var(--nexus-bg)' }}>
+        <div style={{ padding: '20px 20px calc(20px + env(safe-area-inset-bottom)) 20px', borderTop: '1px solid var(--nexus-border)', background: 'var(--nexus-bg)' }}>
           <form style={{ position: 'relative' }} onSubmit={sendMessage}>
             <input 
               type="text" 
