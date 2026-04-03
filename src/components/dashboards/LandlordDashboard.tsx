@@ -2,11 +2,20 @@
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import PulseBar from '@/components/dashboard/PulseBar';
-import MoneyMap from '@/components/dashboard/MoneyMap';
+import dynamic from 'next/dynamic';
 import ActionQueue from '@/components/dashboard/ActionQueue';
 import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
 import type { DashboardKPIs, Space } from '@/types/database';
+
+const PulseBar = dynamic(() => import('@/components/dashboard/PulseBar'), {
+  ssr: false,
+  loading: () => <div className="skeleton" style={{ height: 180, marginBottom: 32 }} />
+});
+
+const MoneyMap = dynamic(() => import('@/components/dashboard/MoneyMap'), {
+  ssr: false,
+  loading: () => <div className="skeleton" style={{ height: 400, marginBottom: 32 }} />
+});
 
 function DashboardContent() {
   const router = useRouter();
