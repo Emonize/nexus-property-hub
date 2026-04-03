@@ -71,7 +71,7 @@ export default function Sidebar({ role }: { role: string }) {
       <div className="mobile-topbar" style={{
         position: 'fixed', top: 0, left: 0, right: 0, height: 64,
         background: 'var(--nexus-bg-elevated)', borderBottom: '1px solid var(--nexus-border)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px',
+        alignItems: 'center', justifyContent: 'space-between', padding: '0 20px',
         zIndex: 1500
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
