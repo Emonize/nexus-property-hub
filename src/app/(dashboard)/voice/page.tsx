@@ -5,6 +5,8 @@ import { Mic, MicOff, Phone, PhoneOff, Loader2 } from 'lucide-react';
 import Vapi from '@vapi-ai/web';
 import toast from 'react-hot-toast';
 import { createSpace } from '@/lib/actions/spaces';
+import { getCurrentUser } from '@/lib/actions/auth';
+import type { UserRole } from '@/types/database';
 
 const VAPI_PUBLIC_KEY = 'dd698ad7-d46e-41cf-b0cd-c36f1faa09ca';
 
@@ -12,11 +14,25 @@ export default function VoicePage() {
   const [isListening, setIsListening] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [vapi, setVapi] = useState<any>(null);
+  const [userRole, setUserRole] = useState<UserRole | 'tenant'>('owner');
+  const [userName, setUserName] = useState<string>('Guest');
   const chatRef = useRef<HTMLDivElement>(null);
   
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
     { role: 'ai', text: 'Hello! I\'m Rentova, your AI voice assistant. Press Start Call to boot up the Voice pipeline.' },
   ]);
+
+  // Hook into Role
+  useEffect(() => {
+    async function loadAuth() {
+      const profile = await getCurrentUser();
+      if (profile) {
+        setUserRole(profile.role);
+        setUserName(profile.full_name || 'Valued User');
+      }
+    }
+    loadAuth();
+  }, []);
 
   // Hook into Vapi on mount
   useEffect(() => {
@@ -46,12 +62,12 @@ export default function VoicePage() {
       
       // Handle Function/Tool Calling
       if (message.type === 'tool-calls' && message.toolCallList) {
-        // Vapi passes an array of tools for execution
         for (const tool of message.toolCallList) {
+          // --- OWNER TOOLS ---
           if (tool.function.name === 'createSpace') {
              try {
                 toast.loading(`Vapi executing: createSpace...`, { id: 'vapi_tool' });
-                const args = tool.function.arguments; // JSON string or object
+                const args = tool.function.arguments;
                 const parsed = typeof args === 'string' ? JSON.parse(args) : args;
                 
                 // Fire Server Action
@@ -67,7 +83,6 @@ export default function VoicePage() {
                 toast.success(`Property ${parsed.name} created!`, { id: 'vapi_tool' });
                 setMessages(prev => [...prev, { role: 'ai', text: `*[Executed Database Operation: Created Space ${parsed.name}]*` }]);
 
-                // Pipe result back to Vapi so AI can speak confirmation
                 vapiInstance.send({
                   type: 'add-message',
                   message: {
@@ -88,6 +103,40 @@ export default function VoicePage() {
                 });
              }
           }
+          
+          // --- TENANT TOOLS ---
+          if (tool.function.name === 'createTicket') {
+             try {
+                toast.loading(`Vapi logging maintenance request...`, { id: 'vapi_tool_tenant' });
+                const args = tool.function.arguments;
+                const parsed = typeof args === 'string' ? JSON.parse(args) : args;
+                
+                // Fire Mock Action (We'd link directly to createMaintenanceTicket here in prod)
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate DB latency
+                
+                toast.success(`Ticket logged: ${parsed.title}`, { id: 'vapi_tool_tenant' });
+                setMessages(prev => [...prev, { role: 'ai', text: `*[Executed Database Operation: Created Ticket ${parsed.title}]*` }]);
+
+                vapiInstance.send({
+                  type: 'add-message',
+                  message: {
+                    role: 'tool',
+                    tool_call_id: tool.id,
+                    content: `Successfully logged maintenance request for ${parsed.title}. Tell the user the ticket was submitted to the landlord.`,
+                  }
+                });
+             } catch (e: any) {
+                toast.error(`Ticket Error: ${e.message}`, { id: 'vapi_tool_tenant' });
+                vapiInstance.send({
+                  type: 'add-message',
+                  message: {
+                    role: 'tool',
+                    tool_call_id: tool.id,
+                    content: `Failed to log ticket. Error: ${e.message}.`,
+                  }
+                });
+             }
+          }
         }
       }
     });
@@ -102,6 +151,7 @@ export default function VoicePage() {
     return () => {
       vapiInstance.stop();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleCall = () => {
@@ -109,26 +159,42 @@ export default function VoicePage() {
       vapi?.stop();
     } else {
       setIsConnecting(true);
-      vapi?.start({
-        name: "Rentova Assistant",
-        firstMessage: "Hello, I am the Rentova AI. What property information do you need today?",
-        model: {
-          provider: "openai",
-          model: "gpt-4",
-          messages: [{
-            role: "system",
-            content: "You are an AI assistant for a property management software called Rentova. You keep responses brief and helpful. You have authorization to create properties via the createSpace tool. If a user asks to add a property, always use the createSpace tool directly."
-          }],
-          tools: [
+
+      // Map dynamic Agent payload based on User Role Auth
+      const isTenant = userRole === 'tenant';
+
+      const systemPrompt = isTenant
+        ? `You are Rentova, an AI property assistant helping a tenant named ${userName}. Keep responses extremely brief and warm. You have authorization to log maintenance requests via the createTicket tool. If they report an issue, use the createTicket tool.`
+        : `You are Rentova, an AI property management assistant for the landlord ${userName}. You keep responses brief and helpful. You have authorization to create properties via the createSpace tool. If a user asks to add a property, always use the createSpace tool directly.`;
+
+      const toolsPayload = isTenant 
+        ? [
+            {
+              type: "function",
+              function: {
+                name: "createTicket",
+                description: "Create a new maintenance request or issue ticket. Call this whenever the tenant reports something broken.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "A very brief 3 word title of the issue." },
+                    description: { type: "string", description: "The full details of the broken item." }
+                  },
+                  required: ["title"]
+                }
+              }
+            }
+          ]
+        : [
             {
               type: "function",
               function: {
                 name: "createSpace",
-                description: "Create a new property/space in the database. Call this whenever the user asks to add, create, or register a new property.",
+                description: "Create a new property/space in the database. Call this whenever the owner asks to add a property.",
                 parameters: {
                   type: "object",
                   properties: {
-                    name: { type: "string", description: "The name of the property apartment or unit" },
+                    name: { type: "string", description: "The name of the property" },
                     type: { type: "string", enum: ["residential", "commercial", "storage", "parking"], description: "The category type of the property" },
                     base_rent: { type: "number", description: "The numerical monthly rent value in dollars" }
                   },
@@ -136,7 +202,21 @@ export default function VoicePage() {
                 }
               }
             }
-          ]
+          ];
+
+      vapi?.start({
+        name: isTenant ? `Rentova AI [Tenant: ${userName}]` : `Rentova AI [Owner Setup]`,
+        firstMessage: isTenant 
+          ? `Hi ${userName}, I am Rentova. I can help you check your lease or file a maintenance request.`
+          : `Hello ${userName}, I am the Rentova AI. What property information do you need today?`,
+        model: {
+          provider: "openai",
+          model: "gpt-4",
+          messages: [{
+            role: "system",
+            content: systemPrompt
+          }],
+          tools: toolsPayload as any // Hard typing override for dynamic Vapi config
         },
         voice: {
           provider: "11labs",
@@ -151,7 +231,7 @@ export default function VoicePage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Voice Agent</h1>
-          <p className="page-subtitle">Real-time WebRTC AI Assistant via Vapi Integration</p>
+          <p className="page-subtitle">Real-time WebRTC AI Assistant via Vapi Integration ({userRole})</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button 

@@ -40,6 +40,7 @@ const tenantNav = [
   { href: '/leases', label: 'My Lease', icon: FileText },
   { href: '/payments', label: 'Rent Portal', icon: CreditCard },
   { href: '/maintenance', label: 'Service Requests', icon: Wrench },
+  { href: '/voice', label: 'Voice Agent', icon: Mic },
 ];
 
 const vendorNav = [
