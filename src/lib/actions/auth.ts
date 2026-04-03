@@ -81,3 +81,22 @@ export async function getCurrentUser() {
 
   return profile;
 }
+
+export async function deleteAccount() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not authenticated' };
+
+  // Scrub profile data (cascade dependencies handle the rest based on foreign keys)
+  const { error } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', user.id);
+
+  if (error) return { error: error.message };
+
+  // Destroy auth session
+  await supabase.auth.signOut();
+  
+  return { success: true };
+}

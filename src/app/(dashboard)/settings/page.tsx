@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { User, CreditCard, Bell, Shield } from 'lucide-react';
+import { deleteAccount } from '@/lib/actions/auth';
 
 interface UserProfile {
   full_name: string;
@@ -59,6 +60,23 @@ export default function SettingsPage() {
     }
     setSaving(false);
     setTimeout(() => setSaveMsg(''), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm("Are you absolutely sure you want to delete your Nexus Property Hub account? This action cannot be undone and will erase all your data.");
+    if (!confirmed) return;
+
+    try {
+      const result = await deleteAccount();
+      if (result.error) {
+        alert("Deletion failed: " + result.error);
+        return;
+      }
+      // Redirect to login 
+      window.location.href = '/auth/login';
+    } catch (e: any) {
+      alert("System err: " + e.message);
+    }
   };
 
   return (
@@ -168,7 +186,7 @@ export default function SettingsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <button className="btn-secondary" style={{ justifyContent: 'flex-start' }}>Change Password</button>
             <button className="btn-secondary" style={{ justifyContent: 'flex-start' }}>Enable Two-Factor Auth</button>
-            <button className="btn-danger" style={{ justifyContent: 'flex-start' }}>Delete Account</button>
+            <button className="btn-danger" style={{ justifyContent: 'flex-start' }} onClick={handleDeleteAccount}>Delete Account</button>
           </div>
         </div>
       </div>
