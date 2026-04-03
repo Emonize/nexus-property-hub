@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Mail, Phone, Shield, Users } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
+import { Virtuoso } from 'react-virtuoso';
 
 interface TenantRow {
   name: string;
@@ -47,9 +48,11 @@ export default function TenantsPage() {
     fetchTenants();
   }, [fetchTenants]);
 
-  const filtered = search
-    ? tenants.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.email.toLowerCase().includes(search.toLowerCase()))
-    : tenants;
+  const filtered = useMemo(() => {
+    return search
+      ? tenants.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.email.toLowerCase().includes(search.toLowerCase()))
+      : tenants;
+  }, [tenants, search]);
 
   return (
     <div>
@@ -60,7 +63,7 @@ export default function TenantsPage() {
             Manage your tenant directory
           </p>
         </div>
-        <button className="btn-primary"><Plus size={16} /> Invite Tenant</button>
+        <button className="btn-primary" aria-label="Invite new tenant"><Plus size={16} /> Invite Tenant</button>
       </div>
 
       <div style={{ position: 'relative', marginBottom: 24 }}>
@@ -69,31 +72,38 @@ export default function TenantsPage() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {filtered.map((t, i) => (
-          <div key={t.name + i} className="nexus-card slide-up" style={{ animationDelay: `${i * 60}ms`, display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg, var(--nexus-primary), var(--nexus-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'white', flexShrink: 0 }}>
-              {t.name.charAt(0)}
-            </div>
+        {filtered.length > 0 && (
+          <Virtuoso
+            useWindowScroll
+            data={filtered}
+            itemContent={(i, t) => (
+              <div key={t.name + i} className="nexus-card slide-up nexus-list-row" style={{ animationDelay: `${i * 60}ms`, marginBottom: 12 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg, var(--nexus-primary), var(--nexus-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'white', flexShrink: 0 }}>
+                  {t.name.charAt(0)}
+                </div>
 
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 16 }}>{t.name}</div>
-              <div style={{ display: 'flex', gap: 16, marginTop: 4, fontSize: 13, color: 'var(--nexus-text-secondary)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={13} /> {t.email}</span>
-                {t.phone && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={13} /> {t.phone}</span>}
+                <div className="nexus-list-content">
+                  <div style={{ fontWeight: 600, fontSize: 16 }}>{t.name}</div>
+                  <div style={{ display: 'flex', gap: 16, marginTop: 4, fontSize: 13, color: 'var(--nexus-text-secondary)', flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={13} aria-label="Email" /> {t.email}</span>
+                    {t.phone && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={13} aria-label="Phone" /> {t.phone}</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                    {t.spaces.map(s => <span key={s} className="badge badge-neutral" style={{ fontSize: 11 }}>{s}</span>)}
+                  </div>
+                </div>
+
+                <div className="nexus-list-actions">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.trust >= 800 ? 'var(--nexus-positive)' : 'var(--nexus-warning)' }}>
+                    <Shield size={16} aria-label="Trust Score" />
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18 }}>{t.trust}</span>
+                  </div>
+                  <button className="btn-secondary" style={{ fontSize: 13 }} aria-label={`View tenant ${t.name}`}>View</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                {t.spaces.map(s => <span key={s} className="badge badge-neutral" style={{ fontSize: 11 }}>{s}</span>)}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.trust >= 800 ? 'var(--nexus-positive)' : 'var(--nexus-warning)' }}>
-              <Shield size={16} />
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18 }}>{t.trust}</span>
-            </div>
-
-            <button className="btn-secondary" style={{ fontSize: 13 }}>View</button>
-          </div>
-        ))}
+            )}
+          />
+        )}
         {filtered.length === 0 && (
           <EmptyState
             icon={Users}

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FileText, Plus, Users, Calendar, Search, X, Loader2 } from 'lucide-react';
 import type { LeaseStatus, LeaseType, Space } from '@/types/database';
 import { createLease } from '@/lib/actions/leases';
 import EmptyState from '@/components/ui/EmptyState';
+import { Virtuoso } from 'react-virtuoso';
 import toast from 'react-hot-toast';
 
 interface LeaseRow {
@@ -288,10 +289,12 @@ export default function LeasesPage() {
     fetchLeases();
   }, [fetchLeases]);
 
-  const filtered = leases.filter(l =>
-    (filter === 'all' || l.status === filter) &&
-    (l.tenant_name.toLowerCase().includes(search.toLowerCase()) || l.space_name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = useMemo(() => {
+    return leases.filter(l =>
+      (filter === 'all' || l.status === filter) &&
+      (l.tenant_name.toLowerCase().includes(search.toLowerCase()) || l.space_name.toLowerCase().includes(search.toLowerCase()))
+    );
+  }, [leases, search, filter]);
 
   return (
     <div>
@@ -302,7 +305,7 @@ export default function LeasesPage() {
             Manage tenant agreements and split groups
           </p>
         </div>
-        <button className="btn-primary" onClick={() => setShowNewModal(true)}>
+        <button className="btn-primary" aria-label="New Lease" onClick={() => setShowNewModal(true)}>
           <Plus size={16} /> New Lease
         </button>
       </div>
@@ -322,35 +325,42 @@ export default function LeasesPage() {
 
       {/* Lease Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {filtered.map((lease, i) => (
-          <div key={lease.id} className="nexus-card slide-up" style={{ animationDelay: `${i * 50}ms`, display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(108, 99, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <FileText size={20} style={{ color: 'var(--nexus-primary-light)' }} />
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 15 }}>{lease.space_name}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4, fontSize: 13, color: 'var(--nexus-text-secondary)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={13} /> {lease.tenant_name}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={13} /> {lease.lease_type}</span>
-              </div>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--nexus-accent)' }}>
-                ${lease.monthly_rent.toLocaleString()}
-                <span style={{ fontSize: 12, color: 'var(--nexus-text-muted)', fontWeight: 400 }}>/mo</span>
-              </div>
-              {lease.split_group && (
-                <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', marginTop: 2 }}>
-                  Split: {lease.split_pct}%
+        {filtered.length > 0 && (
+          <Virtuoso
+            useWindowScroll
+            data={filtered}
+            itemContent={(i, lease) => (
+              <div key={lease.id} className="nexus-card slide-up nexus-list-row" style={{ animationDelay: `${i * 50}ms`, marginBottom: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(108, 99, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FileText size={20} style={{ color: 'var(--nexus-primary-light)' }} aria-label="Lease Icon" />
                 </div>
-              )}
-            </div>
 
-            <span className={`badge ${statusStyles[lease.status]}`}>{lease.status}</span>
-          </div>
-        ))}
+                <div className="nexus-list-content">
+                  <div style={{ fontWeight: 600, fontSize: 15 }}>{lease.space_name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginTop: 4, fontSize: 13, color: 'var(--nexus-text-secondary)' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={13} aria-label="Tenant" /> {lease.tenant_name}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={13} aria-label="Lease type" /> {lease.lease_type}</span>
+                  </div>
+                </div>
+
+                <div className="nexus-list-actions">
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--nexus-accent)' }}>
+                      ${lease.monthly_rent.toLocaleString()}
+                      <span style={{ fontSize: 12, color: 'var(--nexus-text-muted)', fontWeight: 400 }}>/mo</span>
+                    </div>
+                    {lease.split_group && (
+                      <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', marginTop: 2 }}>
+                        Split: {lease.split_pct}%
+                      </div>
+                    )}
+                  </div>
+                  <span className={`badge ${statusStyles[lease.status]}`}>{lease.status}</span>
+                </div>
+              </div>
+            )}
+          />
+        )}
         {filtered.length === 0 && (
           <EmptyState
             icon={FileText}

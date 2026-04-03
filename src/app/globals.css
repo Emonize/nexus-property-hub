@@ -826,6 +826,23 @@ h1, h2, h3, h4, h5, h6 {
   transform: none !important;
 }
 
+/* ─── List Geometries ───────────────────────────── */
+.nexus-list-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nexus-list-content {
+  flex: 1;
+  min-width: 0; /* Prevents flex flex-box blowing out bounding box */
+}
+.nexus-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 /* ─── Mobile Responsiveness ──────────────────────── */
 @media (max-width: 768px) {
   .sidebar {
@@ -848,6 +865,18 @@ h1, h2, h3, h4, h5, h6 {
   }
   .grid-2, .grid-3, .grid-4 {
     grid-template-columns: 1fr;
+  }
+  .nexus-list-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .nexus-list-content {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+  .nexus-list-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 

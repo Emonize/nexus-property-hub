@@ -1,8 +1,9 @@
 'use client';
 import EmptyState from '@/components/ui/EmptyState';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Wrench, Plus, Camera, Mic } from 'lucide-react';
+import { Virtuoso } from 'react-virtuoso';
 import { createClient } from '@/lib/supabase/client';
 
 interface TicketRow {
@@ -119,49 +120,53 @@ export default function MaintenancePage() {
 
       {/* Tickets */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {tickets.map((ticket, i) => (
-          <div key={ticket.id} className="nexus-card slide-up" style={{ animationDelay: `${i * 50}ms` }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: ticket.severity === 'critical' || ticket.severity === 'high' ? 'rgba(251, 188, 4, 0.12)' : 'rgba(66, 133, 244, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Wrench size={20} style={{ color: ticket.severity === 'high' ? 'var(--nexus-warning)' : 'var(--nexus-info)' }} />
-              </div>
+        {tickets.length > 0 && (
+          <Virtuoso
+            useWindowScroll
+            data={tickets}
+            itemContent={(i, ticket) => (
+              <div key={ticket.id} className="nexus-card slide-up nexus-list-row" style={{ animationDelay: `${i * 50}ms`, marginBottom: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: ticket.severity === 'critical' || ticket.severity === 'high' ? 'rgba(251, 188, 4, 0.12)' : 'rgba(66, 133, 244, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Wrench size={20} style={{ color: ticket.severity === 'high' ? 'var(--nexus-warning)' : 'var(--nexus-info)' }} aria-label="Wrench Icon" />
+                </div>
 
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontWeight: 600, fontSize: 15 }}>{ticket.title}</span>
-                  <span className={`badge ${severityColors[ticket.severity]}`}>{ticket.severity}</span>
-                  {ticket.category !== ticket.severity && (
-                    <span className="badge badge-neutral">{ticket.category}</span>
+                <div className="nexus-list-content">
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                    <span style={{ fontWeight: 600, fontSize: 15 }}>{ticket.title}</span>
+                    <span className={`badge ${severityColors[ticket.severity]}`}>{ticket.severity}</span>
+                    {ticket.category !== ticket.severity && (
+                      <span className="badge badge-neutral">{ticket.category}</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 4 }}>
+                    {ticket.space} · Reported by {ticket.reporter}
+                  </div>
+
+                  {ticket.diy_suggestion && (
+                    <div style={{ marginTop: 12, padding: '12px 16px', background: 'rgba(0, 212, 170, 0.06)', border: '1px solid rgba(0, 212, 170, 0.15)', borderRadius: 'var(--nexus-radius-sm)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--nexus-accent)', marginBottom: 4 }}>💡 AI DIY Suggestion</div>
+                      <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>{ticket.diy_suggestion}</div>
+                    </div>
                   )}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 4 }}>
-                  {ticket.space} · Reported by {ticket.reporter}
-                </div>
 
-                {ticket.diy_suggestion && (
-                  <div style={{ marginTop: 12, padding: '12px 16px', background: 'rgba(0, 212, 170, 0.06)', border: '1px solid rgba(0, 212, 170, 0.15)', borderRadius: 'var(--nexus-radius-sm)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--nexus-accent)', marginBottom: 4 }}>💡 AI DIY Suggestion</div>
-                    <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)' }}>{ticket.diy_suggestion}</div>
+                <div className="nexus-list-actions" style={{ flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
+                  {ticket.cost_estimate > 0 && (
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--nexus-warning)' }}>
+                      ${ticket.cost_estimate}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                    <button className="btn-primary" style={{ padding: '6px 14px', fontSize: 12 }} aria-label={ticket.cost_estimate > 0 ? 'Approve Repair' : 'Close Ticket'}>
+                      {ticket.cost_estimate > 0 ? 'Approve' : 'Close'}
+                    </button>
+                    <button className="btn-secondary" style={{ padding: '6px 14px', fontSize: 12 }} aria-label="Assign to vendor">Assign</button>
                   </div>
-                )}
-              </div>
-
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                {ticket.cost_estimate > 0 && (
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--nexus-warning)' }}>
-                    ${ticket.cost_estimate}
-                  </div>
-                )}
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  <button className="btn-primary" style={{ padding: '6px 14px', fontSize: 12 }}>
-                    {ticket.cost_estimate > 0 ? 'Approve Repair' : 'Close'}
-                  </button>
-                  <button className="btn-secondary" style={{ padding: '6px 14px', fontSize: 12 }}>Assign</button>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
+            )}
+          />
+        )}
         {tickets.length === 0 && (
           <EmptyState
             icon={Wrench}
