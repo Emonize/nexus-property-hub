@@ -151,7 +151,7 @@ export default function Sidebar({ role }: { role: string }) {
         <button
           onClick={() => setIsCopilotOpen(true)}
           style={{
-            width: 'calc(100% - 24px)', margin: '12px 12px 0 12px', padding: '10px',
+            width: 'calc(100% - 24px)', margin: '12px 12px 24px 12px', padding: '10px',
             border: 'none', borderRadius: 8, cursor: 'pointer',
             background: 'var(--nexus-accent)', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
