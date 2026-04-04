@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, ChevronRight, User, Shield, CreditCard, FileText, Sparkles } from 'lucide-react';
+import PaymentStep from '@/components/onboarding/PaymentStep';
 
 type OnboardingStep = 'personal' | 'consent' | 'verification' | 'payment' | 'lease';
 
@@ -31,6 +32,9 @@ export default function TenantOnboardingPage() {
   // Verification State
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationDone, setVerificationDone] = useState(false);
+
+  // Payment State
+  const [paymentSaved, setPaymentSaved] = useState(false);
 
   const next = () => {
     if (currentIndex < steps.length - 1) setCurrentStep(steps[currentIndex + 1].id);
@@ -171,19 +175,7 @@ export default function TenantOnboardingPage() {
           )}
 
           {currentStep === 'payment' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <p style={{ fontSize: 14, color: 'var(--nexus-text-secondary)' }}>
-                Add a payment method for automatic rent payments. You can use a bank account (ACH) or credit/debit card.
-              </p>
-              <div style={{ padding: 20, background: 'var(--nexus-bg-elevated)', borderRadius: 'var(--nexus-radius-sm)', border: '1px solid var(--nexus-border)' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Card Details</div>
-                <div><input className="nexus-input" placeholder="Card number" style={{ marginBottom: 12 }} /></div>
-                <div className="grid-2" style={{ gap: 12 }}>
-                  <input className="nexus-input" placeholder="MM / YY" />
-                  <input className="nexus-input" placeholder="CVC" />
-                </div>
-              </div>
-            </div>
+            <PaymentStep onComplete={() => setPaymentSaved(true)} />
           )}
 
           {currentStep === 'lease' && (
@@ -206,16 +198,16 @@ export default function TenantOnboardingPage() {
           {/* Navigation */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
             <button className="btn-secondary" onClick={prev} disabled={currentIndex === 0}>Back</button>
-            {currentStep !== 'verification' || verificationDone ? (
-              <button 
-                className="btn-primary" 
+            {(currentStep === 'verification' && !verificationDone) || (currentStep === 'payment' && !paymentSaved) ? (
+              <div />
+            ) : (
+              <button
+                className="btn-primary"
                 onClick={next}
                 disabled={(currentStep === 'consent' && (!consent || !ssn)) || (currentStep === 'personal' && (!firstName || !lastName))}
               >
                 {currentIndex === steps.length - 1 ? 'Sign Lease & Complete' : 'Continue'} <ChevronRight size={16} />
               </button>
-            ) : (
-              <div /> // Hide 'Continue' on the verification page until Checkr is complete
             )}
           </div>
         </div>

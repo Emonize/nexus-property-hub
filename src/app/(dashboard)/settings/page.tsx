@@ -1,23 +1,54 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { User, CreditCard, Bell, Shield } from 'lucide-react';
-import { deleteAccount } from '@/lib/actions/auth';
+import { User, CreditCard, Bell, Shield, ExternalLink, LogOut, CheckCircle } from 'lucide-react';
+import { deleteAccount, signOut } from '@/lib/actions/auth';
 
 interface UserProfile {
   full_name: string;
   email: string;
   phone: string;
+  role: string;
+  stripe_status: 'not_connected' | 'pending' | 'active';
+  stripe_connect_id: string | null;
+  stripe_customer_id: string | null;
 }
+
+interface NotificationPrefs {
+  payment_reminder: { email: boolean; sms: boolean; push: boolean };
+  maintenance_update: { email: boolean; sms: boolean; push: boolean };
+  lease_action: { email: boolean; sms: boolean; push: boolean };
+  trust_update: { email: boolean; sms: boolean; push: boolean };
+}
+
+const defaultPrefs: NotificationPrefs = {
+  payment_reminder: { email: true, sms: false, push: true },
+  maintenance_update: { email: true, sms: false, push: true },
+  lease_action: { email: true, sms: true, push: true },
+  trust_update: { email: true, sms: false, push: false },
+};
+
+const notifLabels: Record<keyof NotificationPrefs, string> = {
+  payment_reminder: 'Payment Reminders',
+  maintenance_update: 'Maintenance Updates',
+  lease_action: 'Lease Actions',
+  trust_update: 'Trust Score Changes',
+};
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile>({
     full_name: '',
     email: '',
     phone: '',
+    role: 'owner',
+    stripe_status: 'not_connected',
+    stripe_connect_id: null,
+    stripe_customer_id: null,
   });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(defaultPrefs);
+  const [stripeLoading, setStripeLoading] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -29,11 +60,21 @@ export default function SettingsPage() {
             full_name: data.data.full_name || '',
             email: data.data.email || '',
             phone: data.data.phone || '',
+            role: data.data.role || 'owner',
+            stripe_status: data.data.stripe_connect_id ? 'active' : 'not_connected',
+            stripe_connect_id: data.data.stripe_connect_id || null,
+            stripe_customer_id: data.data.stripe_customer_id || null,
           });
         }
       }
     } catch {
-      // Keep default
+      // Keep defaults
+    }
+
+    // Load saved notification preferences from localStorage
+    const saved = localStorage.getItem('nexus_notif_prefs');
+    if (saved) {
+      try { setNotifPrefs(JSON.parse(saved)); } catch { /* keep defaults */ }
     }
   }, []);
 
@@ -48,13 +89,9 @@ export default function SettingsPage() {
       const res = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profile),
+        body: JSON.stringify({ full_name: profile.full_name, phone: profile.phone }),
       });
-      if (res.ok) {
-        setSaveMsg('Profile updated successfully!');
-      } else {
-        setSaveMsg('Failed to save changes.');
-      }
+      setSaveMsg(res.ok ? 'Profile updated successfully!' : 'Failed to save changes.');
     } catch {
       setSaveMsg('Network error. Try again.');
     }
@@ -62,22 +99,54 @@ export default function SettingsPage() {
     setTimeout(() => setSaveMsg(''), 3000);
   };
 
+  const handleStripeConnect = async () => {
+    setStripeLoading(true);
+    try {
+      const res = await fetch('/api/stripe/connect', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to start Stripe onboarding');
+      }
+    } catch {
+      alert('Unable to connect to Stripe');
+    }
+    setStripeLoading(false);
+  };
+
+  const handleNotifChange = (
+    type: keyof NotificationPrefs,
+    channel: 'email' | 'sms' | 'push',
+    value: boolean
+  ) => {
+    const updated = {
+      ...notifPrefs,
+      [type]: { ...notifPrefs[type], [channel]: value },
+    };
+    setNotifPrefs(updated);
+    localStorage.setItem('nexus_notif_prefs', JSON.stringify(updated));
+  };
+
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm("Are you absolutely sure you want to delete your Nexus Property Hub account? This action cannot be undone and will erase all your data.");
+    const confirmed = window.confirm(
+      'Are you absolutely sure you want to delete your account? This action cannot be undone and will erase all your data.'
+    );
     if (!confirmed) return;
 
     try {
       const result = await deleteAccount();
       if (result.error) {
-        alert("Deletion failed: " + result.error);
+        alert('Deletion failed: ' + result.error);
         return;
       }
-      // Redirect to login 
       window.location.href = '/auth/login';
     } catch (e: any) {
-      alert("System err: " + e.message);
+      alert('Error: ' + e.message);
     }
   };
+
+  const isOwnerOrManager = profile.role === 'owner' || profile.role === 'manager';
 
   return (
     <div>
@@ -89,11 +158,12 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid-2">
-        {/* Profile */}
+        {/* ─── Profile ─────────────────────────── */}
         <div className="nexus-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <User size={20} style={{ color: 'var(--nexus-primary-light)' }} />
             <h3 style={{ fontSize: 16, fontWeight: 700 }}>Profile</h3>
+            <span className="badge badge-neutral" style={{ marginLeft: 'auto' }}>{profile.role}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
@@ -114,6 +184,9 @@ export default function SettingsPage() {
                 disabled
                 style={{ opacity: 0.6, cursor: 'not-allowed' }}
               />
+              <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', marginTop: 4 }}>
+                Email cannot be changed. Contact support if needed.
+              </div>
             </div>
             <div>
               <label className="nexus-label">Phone</label>
@@ -127,14 +200,16 @@ export default function SettingsPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button
                 className="btn-primary"
-                style={{ alignSelf: 'flex-start' }}
                 onClick={handleSave}
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
               {saveMsg && (
-                <span style={{ fontSize: 13, color: saveMsg.includes('success') ? 'var(--nexus-positive)' : 'var(--nexus-critical)' }}>
+                <span style={{
+                  fontSize: 13,
+                  color: saveMsg.includes('success') ? 'var(--nexus-positive)' : 'var(--nexus-critical)',
+                }}>
                   {saveMsg}
                 </span>
               )}
@@ -142,51 +217,190 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Payment Settings */}
+        {/* ─── Payment Settings ────────────────── */}
         <div className="nexus-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <CreditCard size={20} style={{ color: 'var(--nexus-accent)' }} />
             <h3 style={{ fontSize: 16, fontWeight: 700 }}>Payment Settings</h3>
           </div>
-          <div style={{ padding: '20px', background: 'rgba(0, 212, 170, 0.06)', borderRadius: 'var(--nexus-radius-sm)', border: '1px solid rgba(0, 212, 170, 0.15)', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: 'var(--nexus-accent)', fontWeight: 600 }}>Stripe Connect</div>
-            <div style={{ fontSize: 14, marginTop: 4 }}>Connected Account: <strong>acct_1234...xyz</strong></div>
-            <div style={{ fontSize: 12, color: 'var(--nexus-text-muted)', marginTop: 4 }}>Payouts are automatically deposited to your bank account</div>
-          </div>
-          <button className="btn-secondary" style={{ width: '100%' }}>Update Stripe Settings</button>
+
+          {isOwnerOrManager ? (
+            <>
+              {/* Stripe Connect for owners/managers */}
+              <div style={{
+                padding: 20,
+                background: profile.stripe_connect_id
+                  ? 'rgba(52, 168, 83, 0.06)'
+                  : 'rgba(0, 212, 170, 0.06)',
+                borderRadius: 'var(--nexus-radius-sm)',
+                border: `1px solid ${profile.stripe_connect_id
+                  ? 'rgba(52, 168, 83, 0.15)'
+                  : 'rgba(0, 212, 170, 0.15)'}`,
+                marginBottom: 16,
+              }}>
+                {profile.stripe_connect_id ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CheckCircle size={16} style={{ color: 'var(--nexus-positive)' }} />
+                      <span style={{ fontSize: 13, color: 'var(--nexus-positive)', fontWeight: 600 }}>
+                        Stripe Connected
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 14, marginTop: 8 }}>
+                      Account: <strong>{profile.stripe_connect_id.slice(0, 12)}...</strong>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--nexus-text-muted)', marginTop: 4 }}>
+                      Payouts are automatically deposited to your bank account
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>Connect Stripe to receive payouts</div>
+                    <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 4 }}>
+                      Set up your Stripe Connected Account to receive rent payments from tenants.
+                    </div>
+                  </>
+                )}
+              </div>
+              <button
+                className={profile.stripe_connect_id ? 'btn-secondary' : 'btn-primary'}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                onClick={handleStripeConnect}
+                disabled={stripeLoading}
+              >
+                {stripeLoading ? 'Connecting...' : (
+                  <>
+                    <ExternalLink size={14} />
+                    {profile.stripe_connect_id ? 'Manage Stripe Account' : 'Connect Stripe'}
+                  </>
+                )}
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Payment method info for tenants/vendors */}
+              <div style={{
+                padding: 20,
+                background: profile.stripe_customer_id
+                  ? 'rgba(52, 168, 83, 0.06)'
+                  : 'rgba(251, 188, 4, 0.06)',
+                borderRadius: 'var(--nexus-radius-sm)',
+                border: `1px solid ${profile.stripe_customer_id
+                  ? 'rgba(52, 168, 83, 0.15)'
+                  : 'rgba(251, 188, 4, 0.15)'}`,
+                marginBottom: 16,
+              }}>
+                {profile.stripe_customer_id ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CheckCircle size={16} style={{ color: 'var(--nexus-positive)' }} />
+                      <span style={{ fontSize: 13, color: 'var(--nexus-positive)', fontWeight: 600 }}>
+                        Payment Method Saved
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--nexus-text-muted)', marginTop: 4 }}>
+                      Your card is on file for automatic rent payments
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--nexus-warning)' }}>
+                      No Payment Method
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginTop: 4 }}>
+                      Add a payment method to enable automatic rent payments
+                    </div>
+                  </>
+                )}
+              </div>
+              <button
+                className="btn-secondary"
+                style={{ width: '100%' }}
+                onClick={() => window.location.href = '/onboarding?step=payment'}
+              >
+                {profile.stripe_customer_id ? 'Update Payment Method' : 'Add Payment Method'}
+              </button>
+            </>
+          )}
         </div>
 
-        {/* Notification Preferences */}
+        {/* ─── Notification Preferences ────────── */}
         <div className="nexus-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <Bell size={20} style={{ color: 'var(--nexus-warning)' }} />
             <h3 style={{ fontSize: 16, fontWeight: 700 }}>Notifications</h3>
           </div>
-          {['Payment Reminders', 'Maintenance Updates', 'Lease Actions', 'Trust Score Changes'].map(name => (
-            <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--nexus-border)' }}>
-              <span style={{ fontSize: 14 }}>{name}</span>
+          {(Object.keys(notifLabels) as (keyof NotificationPrefs)[]).map(type => (
+            <div
+              key={type}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 0',
+                borderBottom: '1px solid var(--nexus-border)',
+              }}
+            >
+              <span style={{ fontSize: 14 }}>{notifLabels[type]}</span>
               <div style={{ display: 'flex', gap: 8 }}>
-                {['Email', 'SMS', 'Push'].map(ch => (
-                  <label key={ch} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--nexus-text-secondary)', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked={ch !== 'SMS'} />
-                    {ch}
+                {(['email', 'sms', 'push'] as const).map(ch => (
+                  <label
+                    key={ch}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, color: 'var(--nexus-text-secondary)', cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={notifPrefs[type][ch]}
+                      onChange={(e) => handleNotifChange(type, ch, e.target.checked)}
+                    />
+                    {ch.charAt(0).toUpperCase() + ch.slice(1)}
                   </label>
                 ))}
               </div>
             </div>
           ))}
+          <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', marginTop: 12 }}>
+            SMS notifications require a verified phone number. Push requires browser permissions.
+          </div>
         </div>
 
-        {/* Security */}
+        {/* ─── Security ────────────────────────── */}
         <div className="nexus-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <Shield size={20} style={{ color: 'var(--nexus-critical)' }} />
             <h3 style={{ fontSize: 16, fontWeight: 700 }}>Security</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <button className="btn-secondary" style={{ justifyContent: 'flex-start' }}>Change Password</button>
-            <button className="btn-secondary" style={{ justifyContent: 'flex-start' }}>Enable Two-Factor Auth</button>
-            <button className="btn-danger" style={{ justifyContent: 'flex-start' }} onClick={handleDeleteAccount}>Delete Account</button>
+            <button
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+              onClick={() => signOut()}
+            >
+              <LogOut size={14} /> Sign Out
+            </button>
+            <div style={{
+              borderTop: '1px solid var(--nexus-border)',
+              paddingTop: 16, marginTop: 4,
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--nexus-critical)', marginBottom: 8 }}>
+                Danger Zone
+              </div>
+              <button
+                className="btn-secondary"
+                style={{
+                  color: 'var(--nexus-critical)',
+                  borderColor: 'rgba(234, 67, 53, 0.3)',
+                  width: '100%',
+                }}
+                onClick={handleDeleteAccount}
+              >
+                Delete Account
+              </button>
+              <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', marginTop: 8 }}>
+                Permanently deletes your account and all associated data. This cannot be undone.
+              </div>
+            </div>
           </div>
         </div>
       </div>

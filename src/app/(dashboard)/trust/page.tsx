@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, RefreshCw } from 'lucide-react';
 
 interface TrustRow {
+  userId: string;
   user: string;
   score: number;
-  payment: number;
+  paymentHistory: number;
   bg: string;
   credit: number;
   evictions: number;
@@ -28,6 +29,7 @@ function getScoreLabel(score: number) {
 
 export default function TrustPage() {
   const [scores, setScores] = useState<TrustRow[]>([]);
+  const [recomputing, setRecomputing] = useState<string | null>(null);
 
   const fetchScores = useCallback(async () => {
     try {
@@ -35,15 +37,16 @@ export default function TrustPage() {
       const data = await getTrustScores();
       if (data && !data.error && data.data) {
         const mapped: TrustRow[] = (data.data as Record<string, unknown>[]).map((t: Record<string, unknown>) => ({
-            user: ((t.user as Record<string, unknown>)?.full_name as string) || 'Unknown',
-            score: Number(t.score) || 0,
-            payment: 0, // computed client-side from payment data
-            bg: (t.bg_check_status as string) || 'pending',
-            credit: Number(t.credit_score) || 0,
-            evictions: Number(t.eviction_count) || 0,
-            review: Number(t.review_avg) || 0,
-          }));
-          setScores(mapped);
+          userId: t.user_id as string,
+          user: ((t.user as Record<string, unknown>)?.full_name as string) || 'Unknown',
+          score: Number(t.score) || 0,
+          paymentHistory: Number(t.payment_history) || 0,
+          bg: (t.bg_check_status as string) || 'pending',
+          credit: Number(t.credit_score) || 0,
+          evictions: Number(t.eviction_count) || 0,
+          review: Number(t.review_avg) || 0,
+        }));
+        setScores(mapped);
       }
     } catch {
       setScores([]);
@@ -54,13 +57,25 @@ export default function TrustPage() {
     fetchScores();
   }, [fetchScores]);
 
+  const handleRecompute = async (userId: string) => {
+    setRecomputing(userId);
+    try {
+      const { computeTrustScore } = await import('@/lib/actions/trust');
+      await computeTrustScore(userId);
+      await fetchScores();
+    } catch {
+      // silent
+    }
+    setRecomputing(null);
+  };
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">Trust Scores</h1>
           <p className="page-subtitle">
-            AI-computed tenant reliability scores (0–1000)
+            AI-computed tenant reliability scores (0-1000)
           </p>
         </div>
       </div>
@@ -74,7 +89,6 @@ export default function TrustPage() {
           <p style={{ color: 'var(--nexus-text-secondary)', maxWidth: 460, margin: '0 auto 32px', lineHeight: 1.6 }}>
             NexusHub automatically evaluates every tenant across 5 critical risk dimensions to compute a deterministic reliability score.
           </p>
-
           <button className="btn-primary" style={{ padding: '0 24px', height: 44 }} onClick={() => window.location.href = '/tenants'}>
             Invite a Tenant
           </button>
@@ -101,7 +115,7 @@ export default function TrustPage() {
           {/* Score Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {scores.map((t, i) => (
-              <div key={t.user + i} className="nexus-card slide-up" style={{ animationDelay: `${i * 80}ms` }}>
+              <div key={t.userId} className="nexus-card slide-up" style={{ animationDelay: `${i * 80}ms` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                   {/* Score Ring */}
                   <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
@@ -127,10 +141,10 @@ export default function TrustPage() {
 
                     <div className="grid-4" style={{ marginTop: 12, gap: 12 }}>
                       {[
-                        { label: 'Payment', value: `${t.payment}%`, color: 'var(--nexus-primary-light)' },
-                        { label: 'Background', value: t.bg, color: t.bg === 'clear' ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
-                        { label: 'Credit', value: t.credit, color: t.credit >= 700 ? 'var(--nexus-positive)' : 'var(--nexus-warning)' },
-                        { label: 'Reviews', value: `${t.review}/5`, color: 'var(--nexus-accent)' },
+                        { label: 'Payment', value: `${Math.round(t.paymentHistory)}%`, color: 'var(--nexus-primary-light)' },
+                        { label: 'Background', value: t.bg, color: t.bg === 'clear' ? 'var(--nexus-positive)' : t.bg === 'flagged' ? 'var(--nexus-warning)' : 'var(--nexus-text-muted)' },
+                        { label: 'Credit', value: t.credit || '—', color: t.credit >= 700 ? 'var(--nexus-positive)' : t.credit >= 600 ? 'var(--nexus-warning)' : 'var(--nexus-text-muted)' },
+                        { label: 'Reviews', value: t.review ? `${t.review}/5` : '—', color: 'var(--nexus-accent)' },
                       ].map(f => (
                         <div key={f.label}>
                           <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{f.label}</div>
@@ -140,7 +154,15 @@ export default function TrustPage() {
                     </div>
                   </div>
 
-                  <button className="btn-secondary" style={{ fontSize: 13 }}>Recompute</button>
+                  <button
+                    className="btn-secondary"
+                    style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+                    disabled={recomputing === t.userId}
+                    onClick={() => handleRecompute(t.userId)}
+                  >
+                    <RefreshCw size={14} className={recomputing === t.userId ? 'spin' : ''} />
+                    {recomputing === t.userId ? 'Computing...' : 'Recompute'}
+                  </button>
                 </div>
               </div>
             ))}

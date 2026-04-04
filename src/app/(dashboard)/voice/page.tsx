@@ -110,10 +110,17 @@ export default function VoicePage() {
                 toast.loading(`Vapi logging maintenance request...`, { id: 'vapi_tool_tenant' });
                 const args = tool.function.arguments;
                 const parsed = typeof args === 'string' ? JSON.parse(args) : args;
-                
-                // Fire Mock Action (We'd link directly to createMaintenanceTicket here in prod)
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate DB latency
-                
+
+                // Fire real server action
+                const { createMaintenanceTicket } = await import('@/lib/actions/maintenance');
+                const res = await createMaintenanceTicket({
+                  space_id: parsed.space_id || '00000000-0000-0000-0000-000000000000',
+                  title: parsed.title,
+                  description: parsed.description || '',
+                });
+
+                if (res?.error) throw new Error(res.error);
+
                 toast.success(`Ticket logged: ${parsed.title}`, { id: 'vapi_tool_tenant' });
                 setMessages(prev => [...prev, { role: 'ai', text: `*[Executed Database Operation: Created Ticket ${parsed.title}]*` }]);
 
@@ -122,7 +129,7 @@ export default function VoicePage() {
                   message: {
                     role: 'tool',
                     tool_call_id: tool.id,
-                    content: `Successfully logged maintenance request for ${parsed.title}. Tell the user the ticket was submitted to the landlord.`,
+                    content: `Successfully logged maintenance request for ${parsed.title} with ID ${res?.data?.id || 'unknown'}. Tell the user the ticket was submitted to the landlord.`,
                   }
                 });
              } catch (e: any) {

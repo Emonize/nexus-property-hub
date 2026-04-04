@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import ActionQueue from '@/components/dashboard/ActionQueue';
 import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
+import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable';
 import type { DashboardKPIs, Space } from '@/types/database';
 
 const PulseBar = dynamic(() => import('@/components/dashboard/PulseBar'), {
@@ -112,6 +113,11 @@ function DashboardContent() {
     setMounted(true);
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  // Real-time subscriptions — refresh dashboard on data changes
+  useRealtimeTable('rent_payments', fetchDashboardData);
+  useRealtimeTable('maintenance_tickets', fetchDashboardData);
+  useRealtimeTable('spaces', fetchDashboardData);
 
   // Route action queue button clicks to the appropriate page
   const handleActionApprove = (id: string, type: string) => {
