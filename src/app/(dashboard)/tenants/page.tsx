@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Mail, Phone, Shield, Users } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import { Virtuoso } from 'react-virtuoso';
+import { getTenants } from '@/lib/actions/tenants';
 
 interface TenantRow {
   name: string;
@@ -20,7 +21,6 @@ export default function TenantsPage() {
 
   const fetchTenants = useCallback(async () => {
     try {
-      const { getTenants } = await import('@/lib/actions/tenants');
       const data = await getTenants();
       if (data && !data.error && data.data) {
         const mapped: TenantRow[] = (data.data as Record<string, unknown>[]).map(t => ({
@@ -39,13 +39,13 @@ export default function TenantsPage() {
           }));
           setTenants(mapped);
       }
-    } catch {
-      setTenants([]);
+    } catch (err) {
+      console.error(err);
     }
   }, []);
 
   useEffect(() => {
-    fetchTenants();
+    fetchTenants(); // eslint-disable-line react-hooks/set-state-in-effect -- initial data fetch on mount
   }, [fetchTenants]);
 
   const filtered = useMemo(() => {

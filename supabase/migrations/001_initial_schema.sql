@@ -29,7 +29,7 @@ CREATE TABLE public.spaces (
   owner_id      UUID NOT NULL REFERENCES public.users(id),
   name          TEXT NOT NULL,
   type          TEXT NOT NULL
-                CHECK (type IN ('building','unit','room','garage',
+                CHECK (type IN ('building','home','unit','room','garage',
                                 'desk','storage','lot','other')),
   address       JSONB,
   floor_plan_url TEXT,

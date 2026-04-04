@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import HierarchyNavigator from '@/components/spaces/HierarchyNavigator';
 import { Plus, Search, Filter, Map, X, Loader2, Pencil, Building2 } from 'lucide-react';
 import type { Space, SpaceType, SpaceStatus } from '@/types/database';
-import { createSpace, updateSpace, deleteSpace, reparentSpace } from '@/lib/actions/spaces';
+import { createSpace, updateSpace, deleteSpace, reparentSpace, getSpaces } from '@/lib/actions/spaces';
 import { getCurrentUser } from '@/lib/actions/auth';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/ui/EmptyState';
 import toast from 'react-hot-toast';
+import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable';
 
 const SPACE_TYPES: { value: SpaceType; label: string; icon: string }[] = [
   { value: 'building', label: 'Building', icon: '🏢' },
@@ -287,26 +288,32 @@ export default function SpacesPage() {
 
   const fetchSpaces = useCallback(async () => {
     try {
-      const { getSpaces } = await import('@/lib/actions/spaces');
       const data = await getSpaces();
       if (data && !data.error && data.data) {
         setSpaces(data.data);
       }
-    } catch {
-      setSpaces([]);
+    } catch (err) {
+      console.error('fetchSpaces error:', err);
+      // Don't wipe out spaces on a transient error
     }
   }, []);
 
   useEffect(() => {
     // Route Boundary Guard
+    let cancelled = false;
     getCurrentUser().then(profile => {
+      if (cancelled) return;
       if (profile && profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin') {
         router.push('/dashboard');
       } else {
         fetchSpaces();
       }
     });
+    return () => { cancelled = true; };
   }, [fetchSpaces, router]);
+
+  // Subscribe to realtime changes on the spaces table
+  useRealtimeTable('spaces', fetchSpaces);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
@@ -338,22 +345,15 @@ export default function SpacesPage() {
     setShowModal(true);
   };
 
-  const handleModalSuccess = () => {
-    fetchSpaces();
-    // If editing, refresh the selected space
-    if (modalMode === 'edit' && selectedSpace) {
-      // Fetch updated space after a short delay to let revalidation happen
-      setTimeout(async () => {
-        const res = await fetch('/api/dashboard/spaces');
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.data) {
-            setSpaces(data.data);
-            const updated = data.data.find((s: Space) => s.id === selectedSpace.id);
-            if (updated) setSelectedSpace(updated);
-          }
-        }
-      }, 300);
+  const handleModalSuccess = async () => {
+    const result = await getSpaces();
+    if (result && !result.error && result.data) {
+      setSpaces(result.data);
+      // If editing, refresh the selected space detail panel
+      if (modalMode === 'edit' && selectedSpace) {
+        const updated = result.data.find((s: Space) => s.id === selectedSpace.id);
+        if (updated) setSelectedSpace(updated);
+      }
     }
   };
 

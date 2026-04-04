@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FileText, Plus, Users, Calendar, Search, X, Loader2 } from 'lucide-react';
 import type { LeaseStatus, LeaseType, Space } from '@/types/database';
-import { createLease } from '@/lib/actions/leases';
+import { createLease, getLeases } from '@/lib/actions/leases';
+import { getSpaces } from '@/lib/actions/spaces';
+import { getTenants } from '@/lib/actions/tenants';
 import EmptyState from '@/components/ui/EmptyState';
 import { Virtuoso } from 'react-virtuoso';
 import toast from 'react-hot-toast';
@@ -64,13 +66,13 @@ function NewLeaseModal({
 
   useEffect(() => {
     // Fetch spaces
-    import('@/lib/actions/spaces').then(m => m.getSpaces())
-      .then(d => { if (d?.data) setSpaces(d.data); })
+    getSpaces()
+      .then((d: { data?: Space[] }) => { if (d?.data) setSpaces(d.data); })
       .catch(() => {});
 
     // Fetch tenants
-    import('@/lib/actions/tenants').then(m => m.getTenants())
-      .then(d => {
+    getTenants()
+      .then((d: { data?: Record<string, unknown>[] }) => {
         if (d?.data) {
           setTenants(d.data.map((t: Record<string, unknown>) => ({
             id: t.id as string,
@@ -263,7 +265,6 @@ export default function LeasesPage() {
 
   const fetchLeases = useCallback(async () => {
     try {
-      const { getLeases } = await import('@/lib/actions/leases');
       const data = await getLeases();
       if (data && !data.error && data.data) {
         const mapped: LeaseRow[] = (data.data as Record<string, unknown>[]).map(l => ({
@@ -280,13 +281,13 @@ export default function LeasesPage() {
           }));
           setLeases(mapped);
         }
-    } catch {
-      setLeases([]);
+    } catch (err) {
+      console.error(err);
     }
   }, []);
 
   useEffect(() => {
-    fetchLeases();
+    fetchLeases(); // eslint-disable-line react-hooks/set-state-in-effect -- initial data fetch on mount
   }, [fetchLeases]);
 
   const filtered = useMemo(() => {

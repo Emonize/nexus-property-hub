@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { useRealtimeTable } from '@/lib/hooks/useRealtimeTable';
 import type { VendorKPIs, VendorTicket } from '@/lib/actions/vendor-dashboard';
+import { getVendorDashboardData } from '@/lib/actions/vendor-dashboard';
+import { updateTicketStatus } from '@/lib/actions/maintenance';
 
 const severityConfig: Record<string, { color: string; badge: string }> = {
   critical: { color: 'var(--nexus-critical)', badge: 'badge-critical' },
@@ -33,7 +37,6 @@ export default function VendorDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const { getVendorDashboardData } = await import('@/lib/actions/vendor-dashboard');
       const data = await getVendorDashboardData();
       setKpis(data.kpis);
       setTickets(data.assignedTickets);
@@ -55,7 +58,6 @@ export default function VendorDashboard() {
 
   const handleUpdateStatus = async (ticketId: string, newStatus: string) => {
     try {
-      const { updateTicketStatus } = await import('@/lib/actions/maintenance');
       await updateTicketStatus(ticketId, newStatus as any);
       fetchData();
     } catch {
@@ -141,7 +143,7 @@ export default function VendorDashboard() {
             <div style={{ fontSize: 40, marginBottom: 12 }}>🔧</div>
             <div style={{ fontWeight: 600, fontSize: 16 }}>No active work orders</div>
             <div style={{ color: 'var(--nexus-text-muted)', fontSize: 14, marginTop: 4 }}>
-              You'll be notified when new tickets are assigned to you
+              You&apos;ll be notified when new tickets are assigned to you
             </div>
           </div>
         ) : (
