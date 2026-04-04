@@ -248,7 +248,7 @@ export default function RentovaAI({ role = 'owner', userName = 'User' }: Rentova
             <div>
               <div style={{ fontWeight: 700, fontSize: 15 }}>Rentova AI</div>
               <div style={{ fontSize: 11, color: 'var(--nexus-text-muted)' }}>
-                {mode === 'voice' ? (isListening ? 'Listening...' : 'Voice mode') : 'Gemini 2.5 Flash'}
+                {mode === 'voice' ? (isListening ? 'Listening...' : 'Voice mode') : 'AI Assistant'}
               </div>
             </div>
           </div>
