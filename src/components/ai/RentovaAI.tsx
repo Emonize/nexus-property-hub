@@ -399,7 +399,7 @@ export default function RentovaAI({ role = 'owner', userName = 'User' }: Rentova
                 <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                   <div style={{ padding: '10px 14px', borderRadius: 14, background: 'var(--nexus-bg-elevated)', borderBottomLeftRadius: 4, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
                     <Loader2 size={14} className="spin" style={{ color: 'var(--nexus-primary-light)' }} />
-                    <span style={{ color: 'var(--nexus-text-muted)' }}>Connecting...</span>
+                    <span style={{ color: 'var(--nexus-text-muted)' }}>Starting voice call...</span>
                   </div>
                 </div>
               )}
@@ -428,7 +428,7 @@ export default function RentovaAI({ role = 'owner', userName = 'User' }: Rentova
                  isListening ? <MicOff size={24} /> : <Mic size={24} />}
               </button>
               <div style={{ fontSize: 13, color: 'var(--nexus-text-muted)', maxWidth: 200 }}>
-                {isConnecting ? 'Dialing Vapi...' :
+                {isConnecting ? 'Connecting...' :
                  isListening ? 'Listening — speak now' :
                  'Tap to start a voice call'}
               </div>
