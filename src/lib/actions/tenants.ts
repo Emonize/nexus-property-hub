@@ -1,15 +1,26 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/actions/auth';
+
 
 export async function getTenants() {
-  const profile = await getCurrentUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return { error: 'Unauthorized: Session missing or expired', data: [] };
+
+  const { createServiceClient } = await import('@/lib/supabase/server');
+  const supabaseAdmin = await createServiceClient();
+
+  const { data: profile } = await supabaseAdmin
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
   if (!profile || (profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin')) {
     return { error: 'Unauthorized Directory Access', data: [] };
   }
-  
-  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('users')
@@ -28,14 +39,28 @@ export async function getTenants() {
 }
 
 export async function inviteTenant(formData: { email: string; full_name: string; phone?: string }) {
-  const profile = await getCurrentUser();
-  if (!profile || (profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin')) {
-    return { error: 'Unauthorized Directory Access' };
-  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return { error: 'Unauthorized: Session missing or expired' };
 
-  // Create a service client to interact with Supabase Auth Admin
+  // Use admin client to bypass any brittle Postgres RLS policies for auth check
   const { createServiceClient } = await import('@/lib/supabase/server');
   const supabaseAdmin = await createServiceClient();
+
+  const { data: profile } = await supabaseAdmin
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    return { error: 'Unauthorized: Profile not found in database registry' };
+  }
+  if (profile.role !== 'owner' && profile.role !== 'manager' && profile.role !== 'admin') {
+    return { error: `Unauthorized: Insufficient privileges (Role: ${profile.role})` };
+  }
+
 
   const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(formData.email, {
     data: {
