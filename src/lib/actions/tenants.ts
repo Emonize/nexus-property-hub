@@ -48,11 +48,15 @@ export async function inviteTenant(formData: { email: string; full_name: string;
   const { createServiceClient } = await import('@/lib/supabase/server');
   const supabaseAdmin = await createServiceClient();
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
+
+  if (profileError) {
+    return { error: `Database Error: ${profileError.message} (Code: ${profileError.code})` };
+  }
 
   if (!profile) {
     return { error: 'Unauthorized: Profile not found in database registry' };
