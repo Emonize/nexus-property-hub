@@ -1,0 +1,14 @@
+=== AUTH USERS ===
+
+=== PUBLIC USERS ===
+demo@example.com - 3aac04ff-6cb5-40d3-9f3d-4fe80abf5e75
+arafat72@gmail.com - 94007fe4-dc0d-4505-8051-6eadba6ef366
+tahmid090694@gmail.com - c988a1b9-ef4a-4a10-b9bc-f09908a6b600
+
+=== INCONSISTENCIES ===
+No users found in Auth that are missing in Public.
+
+Found in Public but NOT in Auth (These will block new invites!):
+demo@example.com (3aac04ff-6cb5-40d3-9f3d-4fe80abf5e75)
+arafat72@gmail.com (94007fe4-dc0d-4505-8051-6eadba6ef366)
+tahmid090694@gmail.com (c988a1b9-ef4a-4a10-b9bc-f09908a6b600)

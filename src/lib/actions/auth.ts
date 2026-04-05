@@ -50,10 +50,16 @@ export async function signOut() {
   redirect('/auth/login');
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(intendedRole?: string) {
   const supabase = await createClient();
   const isProduction = process.env.NODE_ENV === 'production';
   
+  if (intendedRole) {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    cookieStore.set('nexus_intended_role', intendedRole, { path: '/', maxAge: 60 * 5 });
+  }
+
   // Violently override ANY broken Vercel environment variables in production
   const origin = isProduction 
     ? 'https://nexus-property-hub.vercel.app' 

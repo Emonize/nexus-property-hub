@@ -32,8 +32,23 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && sessionData?.user) {
+      const intendedRole = request.cookies.get('nexus_intended_role')?.value;
+      if (intendedRole) {
+        try {
+          const { createServiceClient } = await import('@/lib/supabase/server');
+          const supabaseAdmin = await createServiceClient();
+          await supabaseAdmin
+            .from('users')
+            .update({ role: intendedRole })
+            .eq('id', sessionData.user.id);
+            
+          response.cookies.delete('nexus_intended_role');
+        } catch (updateError) {
+          console.error("Failed to update role:", updateError);
+        }
+      }
       return response;
     }
   }

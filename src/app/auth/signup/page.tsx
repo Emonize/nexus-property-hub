@@ -36,7 +36,7 @@ export default function SignupPage() {
     try {
       setLoading(true);
       setError('');
-      const result = await signInWithGoogle();
+      const result = await signInWithGoogle(formData.role);
       if (result?.error) {
         setError(result.error);
         setLoading(false);
