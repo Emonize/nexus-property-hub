@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 // Global test setup
 // Mock Next.js server-only modules that fail outside the Next.js runtime
 vi.mock('next/headers', () => ({

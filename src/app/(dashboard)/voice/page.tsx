@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -160,7 +160,7 @@ export default function VoicePage() {
     return () => {
       vapiInstance.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const toggleCall = () => {

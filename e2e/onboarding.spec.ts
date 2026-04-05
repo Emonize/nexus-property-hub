@@ -37,7 +37,7 @@ test.describe('Tenant Onboarding Flow', () => {
     await page.getByRole('button', { name: /continue/i }).click();
 
     // Step 2
-    await expect(page.getByText('Background Check')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Background Check' })).toBeVisible();
     await expect(page.getByText(/Why do we run a background check/)).toBeVisible();
     await expect(page.getByPlaceholder('XXX-XX-XXXX')).toBeVisible();
   });

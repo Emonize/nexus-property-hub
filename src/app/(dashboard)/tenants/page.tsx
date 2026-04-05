@@ -24,15 +24,20 @@ function InviteTenantModal({ onClose, onSuccess }: { onClose: () => void; onSucc
     }
 
     setLoading(true);
-    const result = await inviteTenant(formData);
-    setLoading(false);
+    try {
+      const result = await inviteTenant(formData);
+      setLoading(false);
 
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(`Invitation sent to ${formData.email}!`);
-      onSuccess();
-      onClose();
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(`Invitation sent to ${formData.email}!`);
+        onSuccess();
+        onClose();
+      }
+    } catch {
+      setLoading(false);
+      toast.error('An unexpected error occurred.');
     }
   };
 

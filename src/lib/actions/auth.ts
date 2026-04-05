@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use server';
 
@@ -81,7 +81,10 @@ export async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: profile } = await supabase
+  const { createServiceClient } = await import('@/lib/supabase/server');
+  const supabaseAdmin = await createServiceClient();
+
+  const { data: profile } = await supabaseAdmin
     .from('users')
     .select('*')
     .eq('id', user.id)

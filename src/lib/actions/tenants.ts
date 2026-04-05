@@ -22,7 +22,7 @@ export async function getTenants() {
     return { error: 'Unauthorized Directory Access', data: [] };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('users')
     .select(`
       id, full_name, email, phone, role,

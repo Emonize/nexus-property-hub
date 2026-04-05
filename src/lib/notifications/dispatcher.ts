@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { createServiceClient } from '@/lib/supabase/server';
 
 type NotificationType = 'payment_reminder' | 'maintenance_update' | 'lease_action' | 'trust_update' | 'system';

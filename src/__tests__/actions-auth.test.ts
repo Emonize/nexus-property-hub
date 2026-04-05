@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { signUp, signIn, signInWithGoogle, getCurrentUser, deleteAccount } from '@/lib/actions/auth';
 
 const mockSignUp = vi.fn();
 const mockSignInWithPassword = vi.fn();
@@ -20,9 +21,12 @@ vi.mock('@/lib/supabase/server', () => ({
     },
     from: mockFrom,
   })),
+  createServiceClient: vi.fn(() => Promise.resolve({
+    from: mockFrom,
+  })),
 }));
 
-import { signUp, signIn, signInWithGoogle, getCurrentUser, deleteAccount } from '@/lib/actions/auth';
+
 
 describe('Auth Actions', () => {
   beforeEach(() => {
