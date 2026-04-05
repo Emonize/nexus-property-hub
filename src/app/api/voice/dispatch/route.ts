@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { function_name, parameters, call_id } = await request.json();
+    const { function_name, parameters } = await request.json();
     const supabase = await createServiceClient();
 
     // STRICT TENANT BOUNDARY ENFORCEMENT
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         };
       },
 
-      get_payment_history: async ({ tenant_name, months }) => {
+      get_payment_history: async ({ months }) => {
         const monthCount = (months as number) || 3;
 
         const cutoff = new Date();

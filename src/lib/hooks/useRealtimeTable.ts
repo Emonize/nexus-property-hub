@@ -15,14 +15,22 @@ export function useRealtimeTable(
   }
 ) {
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     const supabase = createClient();
     const event = options?.event || '*';
 
-    let channelConfig: any = {
-      event,
+    const channelConfig: {
+      event: '*' | 'INSERT' | 'UPDATE' | 'DELETE';
+      schema: string;
+      table: string;
+      filter?: string;
+    } = {
+      event: event as '*' | 'INSERT' | 'UPDATE' | 'DELETE',
       schema: 'public',
       table,
     };

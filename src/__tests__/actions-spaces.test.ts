@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock Supabase before importing the module under test

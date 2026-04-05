@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // We replicate the rate-limit logic for unit testing since

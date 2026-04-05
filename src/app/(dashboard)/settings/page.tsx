@@ -79,6 +79,7 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProfile();
   }, [fetchProfile]);
 
@@ -141,8 +142,8 @@ export default function SettingsPage() {
         return;
       }
       window.location.href = '/auth/login';
-    } catch (e: any) {
-      alert('Error: ' + e.message);
+    } catch (e: Error | unknown) {
+      alert('Error: ' + (e instanceof Error ? e.message : 'Unknown error'));
     }
   };
 

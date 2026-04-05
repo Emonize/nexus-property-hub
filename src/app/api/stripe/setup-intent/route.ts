@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
-  apiVersion: '2026-03-25.dahlia' as any,
+  apiVersion: '2026-03-25.dahlia',
 });
 
 /**
@@ -59,8 +61,8 @@ export async function POST(request: NextRequest) {
       clientSecret: setupIntent.client_secret,
       customerId,
     });
-  } catch (error) {
-    console.error('Stripe SetupIntent error:', error);
+  } catch (error: Error | unknown) {
+    console.error('Stripe SetupIntent error:', error instanceof Error ? error.message : 'Unknown Error');
     return NextResponse.json({ error: 'Failed to create setup intent' }, { status: 500 });
   }
 }

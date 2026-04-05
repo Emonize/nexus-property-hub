@@ -54,6 +54,7 @@ export default function Sidebar({ role }: { role: string }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileOpen(false);
   }, [pathname]);
 

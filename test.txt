@@ -1,0 +1,53 @@
+﻿
+> nexus-app@0.1.0 test
+> vitest run --run
+
+
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90mC:/Users/mohdy/NexusHub/nexus-app[39m
+
+ [32mΓ£ô[39m src/__tests__/severity-priority.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/triage-fallback.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/rate-limit.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/database-types.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-maintenance.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-vendor-dashboard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-payments.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-auth.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-spaces.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-tenant-dashboard.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/actions-leases.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+[90mstdout[2m | src/__tests__/cron-generate-payments.test.ts[2m > [22m[2mCron: Generate Monthly Payments[2m > [22m[2mgenerates payments for active leases
+[22m[39mCron: Generated 3 payments for 2026-04
+
+[90mstdout[2m | src/__tests__/cron-generate-payments.test.ts[2m > [22m[2mCron: Generate Monthly Payments[2m > [22m[2mskips leases that already have payments for this month
+[22m[39mCron: Generated 1 payments for 2026-04
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mprocesses Day 3 overdue: retry + SMS notification
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m1[39m, notified: [33m1[39m, lateFees: [33m0[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+ [32mΓ£ô[39m src/__tests__/cron-generate-payments.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mprocesses Day 5 overdue: retry + email warning
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m1[39m, notified: [33m1[39m, lateFees: [33m0[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mprocesses Day 7 overdue: applies late fee + notifies owner
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m0[39m, notified: [33m1[39m, lateFees: [33m1[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mdoes not double-apply late fees
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m0[39m, notified: [33m1[39m, lateFees: [33m0[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mprocesses Day 14+ overdue: escalation to owner
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m0[39m, notified: [33m0[39m, lateFees: [33m0[39m, escalated: [33m1[39m, errors: [33m0[39m }
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mdoes not double-escalate
+[22m[39mRetry cron: processed 1 overdue payments { retried: [33m0[39m, notified: [33m0[39m, lateFees: [33m0[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+[90mstdout[2m | src/__tests__/cron-retry-payments.test.ts[2m > [22m[2mCron: Retry Payments[2m > [22m[2mhandles empty overdue list gracefully
+[22m[39mRetry cron: processed 0 overdue payments { retried: [33m0[39m, notified: [33m0[39m, lateFees: [33m0[39m, escalated: [33m0[39m, errors: [33m0[39m }
+
+ [32mΓ£ô[39m src/__tests__/cron-retry-payments.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[32m123 passed[39m[22m[90m (123)[39m
+[2m   Start at [22m 20:34:24
+[2m   Duration [22m 760ms[2m (transform 2.10s, setup 652ms, import 2.50s, tests 191ms, environment 2ms)[22m
+

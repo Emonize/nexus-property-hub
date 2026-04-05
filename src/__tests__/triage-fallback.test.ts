@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from 'vitest';
 
 // The fallbackTriage function is not exported, so we test it via the API route.

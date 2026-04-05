@@ -22,6 +22,11 @@ export async function createClient() {
           }
         },
       },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        },
+      },
     }
   );
 }
@@ -45,6 +50,11 @@ export async function createServiceClient() {
           } catch {
             // Server Component — ignore
           }
+        },
+      },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
         },
       },
     }

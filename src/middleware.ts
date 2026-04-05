@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { updateSession } from '@/lib/supabase/middleware';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';

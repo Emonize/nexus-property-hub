@@ -1,0 +1,186 @@
+﻿
+> nexus-app@0.1.0 lint
+> eslint
+
+
+C:\Users\mohdy\NexusHub\nexus-app\refactor.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\actions-leases.test.ts
+  216:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\actions-maintenance.test.ts
+   18:7   warning  'originalFetch' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   27:3   warning  'getActionQueueItems' is defined but never used     @typescript-eslint/no-unused-vars
+   48:25  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   51:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   87:12  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   89:25  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   92:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  126:12  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  128:25  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  131:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  156:24  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  159:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  180:24  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  183:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  203:24  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  206:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  226:24  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  229:51  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  252:93  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  272:93  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\actions-payments.test.ts
+   47:25  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   58:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   71:13  warning  'result' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   85:25  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   96:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  122:29  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  133:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  168:24  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  171:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  192:24  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  195:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  216:24  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  219:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  241:24  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  244:51  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  268:93  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  286:93  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  298:13  warning  'result' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  307:93  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  317:93  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\actions-tenant-dashboard.test.ts
+  14:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\actions-vendor-dashboard.test.ts
+  13:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\cron-generate-payments.test.ts
+    4:7   warning  'mockSelect' is assigned a value but never used  @typescript-eslint/no-unused-vars
+    5:7   warning  'mockInsert' is assigned a value but never used  @typescript-eslint/no-unused-vars
+    6:7   warning  'mockEq' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   23:90  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   49:27  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   67:49  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   71:32  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  104:27  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  121:51  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  125:34  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\cron-retry-payments.test.ts
+  18:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:87  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\database-types.test.ts
+  12:3  warning  'User' is defined but never used         @typescript-eslint/no-unused-vars
+  15:3  warning  'RentPayment' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\__tests__\helpers\mock-supabase.ts
+  129:33  warning  'params' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\(dashboard)\maintenance\page.tsx
+  4:44  warning  'useMemo' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\(dashboard)\micro-list\page.tsx
+   3:31  warning  'useCallback' is defined but never used   @typescript-eslint/no-unused-vars
+   4:10  warning  'Layers' is defined but never used        @typescript-eslint/no-unused-vars
+   4:84  warning  'X' is defined but never used             @typescript-eslint/no-unused-vars
+  88:61  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\(dashboard)\voice\page.tsx
+   16:36  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+   54:48  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+   94:26  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  135:26  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  151:34  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  161:3   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  226:34  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\api\stripe\connect\route.ts
+  10:28  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\api\stripe\setup-intent\route.ts
+  16:28  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\auth\login\page.tsx
+  43:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\auth\signup\page.tsx
+  47:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\app\onboarding\page.tsx
+  141:24  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\mohdy\NexusHub\nexus-app\src\components\ai\RentovaAI.tsx
+   4:53  warning  'Phone' is defined but never used         @typescript-eslint/no-unused-vars
+   4:60  warning  'PhoneOff' is defined but never used      @typescript-eslint/no-unused-vars
+  42:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:23  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:46  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\components\chat\CopilotDrawer.tsx
+  66:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\components\dashboards\LandlordDashboard.tsx
+    4:21  warning  'useSearchParams' is defined but never used        @typescript-eslint/no-unused-vars
+   30:50  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+   31:42  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+   48:11  warning  'isLiveKpis' is assigned a value but never used    @typescript-eslint/no-unused-vars
+   57:9   warning  'isLiveSpaces' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  184:20  warning  'space' is defined but never used                  @typescript-eslint/no-unused-vars
+  185:22  warning  'spaceId' is defined but never used                @typescript-eslint/no-unused-vars
+  185:31  warning  'newParentId' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\components\dashboards\TenantDashboard.tsx
+  5:41  warning  'CheckCircle' is defined but never used          @typescript-eslint/no-unused-vars
+  9:10  warning  'formatDistanceToNow' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\components\dashboards\VendorDashboard.tsx
+    6:11   warning  'ChevronRight' is defined but never used                         @typescript-eslint/no-unused-vars
+    6:25   warning  'Timer' is defined but never used                                @typescript-eslint/no-unused-vars
+   59:55   error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  144:18   error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  188:102  error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\lib\actions\auth.ts
+  6:10  warning  'headers' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\lib\actions\tenant-dashboard.ts
+  103:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  148:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  174:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\lib\actions\vendor-dashboard.ts
+  82:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  88:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  99:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\lib\notifications\dispatcher.ts
+  12:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mohdy\NexusHub\nexus-app\src\lib\rate-limit.ts
+  23:29  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  23:41  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  96:29  warning  'remaining' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mohdy\NexusHub\nexus-app\src\middleware.ts
+  3:23  warning  'NextResponse' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 120 problems (87 errors, 33 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

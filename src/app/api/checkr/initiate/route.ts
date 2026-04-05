@@ -124,8 +124,8 @@ export async function POST(request: NextRequest) {
       status: 'pending'
     });
 
-  } catch (error: any) {
-    console.error('Checkr Integration Error:', error.message);
+  } catch (error: Error | unknown) {
+    console.error('Checkr Integration Error:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json({ error: 'Background check initiation failed.' }, { status: 500 });
   }
 }

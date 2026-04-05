@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Map messages specifically to Gemini's format: 'user' or 'model'
-    const formattedHistory = messages.map((m: any) => ({
+    const formattedHistory = messages.map((m: { role: string; content: string }) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
@@ -87,8 +87,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ content: textContent });
 
-  } catch (error: any) {
-    console.error('Gemini Copilot Error:', error.message);
+  } catch (error: Error | unknown) {
+    console.error('Gemini Copilot Error:', error instanceof Error ? error.message : 'Unknown Error');
     return NextResponse.json({ error: 'The AI Copilot encountered an error.' }, { status: 500 });
   }
 }

@@ -1,0 +1,223 @@
+[
+  {
+    "id": "10f98d74-b768-4758-9736-1669b8bc0bd6",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "815 solly",
+    "type": "home",
+    "address": {
+      "zip": "19111",
+      "city": "Philadelphia",
+      "state": "PA",
+      "street": "815 Solly Avenue",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": 200,
+    "base_rent": 2500,
+    "currency": "usd",
+    "amenities": [
+      "heating",
+      "parking"
+    ],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T00:31:31.71126+00:00",
+    "updated_at": "2026-04-04T00:31:31.71126+00:00"
+  },
+  {
+    "id": "f7523a44-2ac7-4d3f-8348-cd5e063f84b0",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "address": {
+      "zip": "99111",
+      "city": "Philadelphia",
+      "state": "PA",
+      "street": "815 Solly Avenue",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "listed",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T03:53:36.948413+00:00",
+    "updated_at": "2026-04-04T03:53:36.948413+00:00"
+  },
+  {
+    "id": "a078a734-eef3-4872-98d9-2f6c2be29d4c",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "address": {
+      "zip": "99111",
+      "city": "Philadelphia",
+      "state": "PA",
+      "street": "815 Solly Avenue",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "occupied",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T04:08:47.614815+00:00",
+    "updated_at": "2026-04-04T04:08:47.614815+00:00"
+  },
+  {
+    "id": "cd4cc483-bc31-4533-82ec-53746b7307c9",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "mohd Arafat",
+    "type": "home",
+    "address": {
+      "zip": "19111",
+      "city": "Philadelphia",
+      "state": "WA",
+      "street": "815 solly ave",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T18:47:43.442192+00:00",
+    "updated_at": "2026-04-04T18:47:43.442192+00:00"
+  },
+  {
+    "id": "e010d076-728e-4d6d-a925-aa6a50ea2f0d",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "address": {
+      "zip": "99111",
+      "city": "Philadelphia",
+      "state": "PA",
+      "street": "815 Solly Avenue",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T19:30:46.08208+00:00",
+    "updated_at": "2026-04-04T19:30:46.08208+00:00"
+  },
+  {
+    "id": "3eddaa79-5e64-4595-8062-7c15a0d9dfc0",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "Mohd yeasin arafat",
+    "type": "building",
+    "address": {
+      "zip": "98133",
+      "city": "Seattle",
+      "state": "WA",
+      "street": "11317 Corliss Avenue North",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T19:33:54.18506+00:00",
+    "updated_at": "2026-04-04T19:33:54.18506+00:00"
+  },
+  {
+    "id": "a71a80d8-1383-4954-a850-0c81818b7b69",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "Mohd yeasin arafat",
+    "type": "building",
+    "address": {
+      "zip": "98133",
+      "city": "Seattle",
+      "state": "WA",
+      "street": "11317 Corliss Avenue North",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T19:35:49.618558+00:00",
+    "updated_at": "2026-04-04T19:35:49.618558+00:00"
+  },
+  {
+    "id": "cf77ff96-fefc-4bec-a273-82369fab2c08",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "address": {
+      "zip": "99111",
+      "city": "Philadelphia",
+      "state": "PA",
+      "street": "815 Solly Avenue",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": null,
+    "base_rent": null,
+    "currency": "usd",
+    "amenities": [
+      "elevator"
+    ],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T19:36:02.143183+00:00",
+    "updated_at": "2026-04-04T19:36:02.143183+00:00"
+  },
+  {
+    "id": "d870f907-6674-4498-9168-ab6383cc72b2",
+    "parent_id": null,
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366",
+    "name": "Test Property",
+    "type": "building",
+    "address": {
+      "zip": "10001",
+      "city": "New York",
+      "state": "NY",
+      "street": "123 Main St",
+      "country": "US"
+    },
+    "floor_plan_url": null,
+    "area_sqft": 1000,
+    "base_rent": 2000,
+    "currency": "usd",
+    "amenities": [],
+    "status": "vacant",
+    "listing_photos": [],
+    "meta": {},
+    "created_at": "2026-04-04T19:45:37.330255+00:00",
+    "updated_at": "2026-04-04T19:45:37.330255+00:00"
+  }
+]

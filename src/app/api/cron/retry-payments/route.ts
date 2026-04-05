@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
-  apiVersion: '2026-03-25.dahlia' as any,
+  apiVersion: '2026-03-25.dahlia',
 });
 
 /**
@@ -55,14 +55,14 @@ export async function GET(request: NextRequest) {
   for (const payment of overduePayments) {
     const dueDate = new Date(payment.due_date);
     const daysOverdue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
-    const lease = payment.lease as any;
+    const lease = payment.lease as { space?: { name?: string; owner_id?: string }; split_group_id?: string; notes?: string; due_date?: string } | null;
     const spaceName = lease?.space?.name || 'Unknown space';
     const ownerId = lease?.space?.owner_id;
 
     try {
       // Day 3: First retry + SMS notification
       if (daysOverdue >= 3 && daysOverdue < 5) {
-        await retryPayment(supabase, payment);
+        await retryPayment(supabase, payment as unknown as Parameters<typeof retryPayment>[1]);
         results.retried++;
 
         await dispatchNotification({
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
       // Day 5: Second retry + email warning
       else if (daysOverdue >= 5 && daysOverdue < 7) {
-        await retryPayment(supabase, payment);
+        await retryPayment(supabase, payment as unknown as Parameters<typeof retryPayment>[1]);
         results.retried++;
 
         await dispatchNotification({
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
  */
 async function retryPayment(
   supabase: Awaited<ReturnType<typeof createServiceClient>>,
-  payment: { id: string; tenant_id: string; amount: number; lease_id: string; lease: any }
+  payment: { id: string; tenant_id: string; amount: number | string; lease_id: string; lease: { notes?: string; space?: { owner_id?: string }; split_group_id?: string; due_date?: string } | null }
 ) {
   // Look up the tenant's saved Stripe customer ID
   const { data: tenant } = await supabase
@@ -247,13 +247,13 @@ async function retryPayment(
         notes: `${payment.lease?.notes || ''}\n[${new Date().toISOString()}] Auto-retry initiated (${paymentIntent.id})`.trim(),
       })
       .eq('id', payment.id);
-  } catch (err: any) {
+  } catch (err: Error | unknown) {
     // Stripe charge failed — update status
     await supabase
       .from('rent_payments')
       .update({
         status: 'failed',
-        notes: `${payment.lease?.notes || ''}\n[${new Date().toISOString()}] Auto-retry failed: ${err.message}`.trim(),
+        notes: `${payment.lease?.notes || ''}\n[${new Date().toISOString()}] Auto-retry failed: ${err instanceof Error ? err.message : 'Unknown error'}`.trim(),
       })
       .eq('id', payment.id);
   }

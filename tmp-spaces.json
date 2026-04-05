@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cf77ff96-fefc-4bec-a273-82369fab2c08",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366"
+  },
+  {
+    "id": "a71a80d8-1383-4954-a850-0c81818b7b69",
+    "name": "Mohd yeasin arafat",
+    "type": "building",
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366"
+  },
+  {
+    "id": "3eddaa79-5e64-4595-8062-7c15a0d9dfc0",
+    "name": "Mohd yeasin arafat",
+    "type": "building",
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366"
+  },
+  {
+    "id": "e010d076-728e-4d6d-a925-aa6a50ea2f0d",
+    "name": "mohd Yeasin Arafat",
+    "type": "building",
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366"
+  },
+  {
+    "id": "cd4cc483-bc31-4533-82ec-53746b7307c9",
+    "name": "mohd Arafat",
+    "type": "home",
+    "owner_id": "94007fe4-dc0d-4505-8051-6eadba6ef366"
+  }
+]

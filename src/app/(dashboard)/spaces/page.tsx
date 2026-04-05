@@ -113,6 +113,7 @@ function SpaceFormModal({
         amenities,
         status,
       });
+      console.log('[Spaces] createSpace result:', JSON.stringify(result));
       if (result.error) {
         toast.error(result.error);
         setSaving(false);
@@ -289,12 +290,15 @@ export default function SpacesPage() {
   const fetchSpaces = useCallback(async () => {
     try {
       const data = await getSpaces();
-      if (data && !data.error && data.data) {
+      console.log('[Spaces] getSpaces response:', JSON.stringify(data));
+      if (data && data.data) {
         setSpaces(data.data);
+        if (data.error) {
+          console.warn('[Spaces] getSpaces returned error:', data.error);
+        }
       }
     } catch (err) {
-      console.error('fetchSpaces error:', err);
-      // Don't wipe out spaces on a transient error
+      console.error('[Spaces] fetchSpaces error:', err);
     }
   }, []);
 
