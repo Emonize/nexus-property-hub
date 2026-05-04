@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
 export async function updateSession(request: NextRequest) {
   // In demo mode (no Supabase configured), allow all routes
@@ -9,8 +10,6 @@ export async function updateSession(request: NextRequest) {
 
   // Production mode: enforce auth
   try {
-    const { createServerClient } = await import('@supabase/ssr');
-
     let supabaseResponse = NextResponse.next({ request });
 
     const supabase = createServerClient(
