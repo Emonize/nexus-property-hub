@@ -75,6 +75,34 @@ export async function POST(request: NextRequest) {
       }
       break;
     }
+
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer as string;
+      const status = subscription.status;
+      
+      // Determine plan based on the price ID or product ID
+      const priceId = subscription.items.data[0]?.price.id;
+      // In a real app, map priceId to your plans ('pro', 'scale'). Defaulting to 'pro' for now if active.
+      let plan = 'starter';
+      if (status === 'active' || status === 'trialing') {
+        plan = 'pro'; // We will assume pro unless logic is added to fetch product details.
+        // If you have specific price IDs for 'pro' and 'scale', you can map them here.
+      }
+
+      await supabase
+        .from('users')
+        .update({
+          subscription_status: status,
+          subscription_plan: plan,
+          stripe_subscription_id: subscription.id,
+          subscription_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+        })
+        .eq('stripe_customer_id', customerId);
+      break;
+    }
   }
 
   return NextResponse.json({ received: true });

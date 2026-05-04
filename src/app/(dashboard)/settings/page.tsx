@@ -12,6 +12,8 @@ interface UserProfile {
   stripe_status: 'not_connected' | 'pending' | 'active';
   stripe_connect_id: string | null;
   stripe_customer_id: string | null;
+  subscription_plan: string;
+  subscription_status: string;
 }
 
 interface NotificationPrefs {
@@ -44,11 +46,14 @@ export default function SettingsPage() {
     stripe_status: 'not_connected',
     stripe_connect_id: null,
     stripe_customer_id: null,
+    subscription_plan: 'starter',
+    subscription_status: 'active',
   });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(defaultPrefs);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -64,6 +69,8 @@ export default function SettingsPage() {
             stripe_status: data.data.stripe_connect_id ? 'active' : 'not_connected',
             stripe_connect_id: data.data.stripe_connect_id || null,
             stripe_customer_id: data.data.stripe_customer_id || null,
+            subscription_plan: data.data.subscription_plan || 'starter',
+            subscription_status: data.data.subscription_status || 'active',
           });
         }
       }
@@ -114,6 +121,26 @@ export default function SettingsPage() {
       alert('Unable to connect to Stripe');
     }
     setStripeLoading(false);
+  };
+
+  const handleManageSubscription = async () => {
+    if (profile.subscription_plan === 'starter' || !profile.stripe_customer_id) {
+      window.location.href = '/pricing';
+      return;
+    }
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to open billing portal');
+      }
+    } catch {
+      alert('Unable to connect to Stripe portal');
+    }
+    setPortalLoading(false);
   };
 
   const handleNotifChange = (
@@ -276,6 +303,27 @@ export default function SettingsPage() {
                   </>
                 )}
               </button>
+
+              {/* Subscription Billing Info */}
+              <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--nexus-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <h4 style={{ fontSize: 14, fontWeight: 600 }}>Subscription Plan</h4>
+                  <span className={`badge ${profile.subscription_plan === 'starter' ? 'badge-neutral' : 'badge-gold'}`} style={{ textTransform: 'capitalize' }}>
+                    {profile.subscription_plan}
+                  </span>
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--nexus-text-secondary)', marginBottom: 16 }}>
+                  Status: <strong style={{ color: profile.subscription_status === 'active' || profile.subscription_status === 'trialing' ? 'var(--nexus-positive)' : 'var(--nexus-warning)', textTransform: 'capitalize' }}>{profile.subscription_status}</strong>
+                </div>
+                <button
+                  className="btn-secondary"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                >
+                  {portalLoading ? 'Loading...' : (profile.subscription_plan === 'starter' ? 'Upgrade Plan' : 'Manage Subscription')}
+                </button>
+              </div>
             </>
           ) : (
             <>

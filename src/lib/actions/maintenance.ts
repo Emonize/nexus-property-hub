@@ -16,19 +16,32 @@ export async function createMaintenanceTicket(formData: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
 
-  // AI Triage — call the triage API route
+  // Get the space owner's subscription plan to see if AI Triage is allowed
+  const { data: spaceData } = await supabase
+    .from('spaces')
+    .select('owner_id, owner:users!spaces_owner_id_fkey(subscription_plan)')
+    .eq('id', formData.space_id)
+    .single();
+
+  // Handle relation array wrapper for single user fetch
+  const ownerRecord = Array.isArray(spaceData?.owner) ? spaceData?.owner[0] : spaceData?.owner;
+  const ownerPlan = (ownerRecord as any)?.subscription_plan || 'starter';
+
+  // AI Triage — call the triage API route if plan allows
   let triageResult = null;
   try {
-    const triageResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ai/triage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        description: `${formData.title}. ${formData.description || ''}`,
-        photo_urls: formData.photo_urls,
-      }),
-    });
-    if (triageResponse.ok) {
-      triageResult = await triageResponse.json();
+    if (ownerPlan !== 'starter') {
+      const triageResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ai/triage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: `${formData.title}. ${formData.description || ''}`,
+          photo_urls: formData.photo_urls,
+        }),
+      });
+      if (triageResponse.ok) {
+        triageResult = await triageResponse.json();
+      }
     }
   } catch {
     // Graceful fallback — create ticket without AI triage

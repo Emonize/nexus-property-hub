@@ -44,6 +44,26 @@ export async function createSpace(formData: {
     }
   }
 
+  // Plan Limits Check
+  const { data: profile } = await supabase
+    .from('users')
+    .select('subscription_plan')
+    .eq('id', user.id)
+    .single();
+
+  const plan = profile?.subscription_plan || 'starter';
+
+  if (plan === 'starter') {
+    const { count, error: countError } = await supabase
+      .from('spaces')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', user.id);
+      
+    if (!countError && count !== null && count >= 2) {
+      return { error: 'Starter plan is limited to 2 properties. Please upgrade to Pro or Scale on the Settings page.' };
+    }
+  }
+
   const { data, error } = await supabase
     .from('spaces')
     .insert({

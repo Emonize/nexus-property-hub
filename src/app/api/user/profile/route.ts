@@ -13,7 +13,7 @@ export async function GET() {
     // Get profile from users table
     const { data: profile } = await supabase
       .from('users')
-      .select('full_name, phone, role, stripe_customer_id, stripe_connect_id')
+      .select('full_name, phone, role, stripe_customer_id, stripe_connect_id, subscription_plan, subscription_status')
       .eq('id', user.id)
       .single();
 
@@ -25,6 +25,8 @@ export async function GET() {
         role: profile?.role || 'owner',
         stripe_customer_id: profile?.stripe_customer_id || null,
         stripe_connect_id: profile?.stripe_connect_id || null,
+        subscription_plan: profile?.subscription_plan || 'starter',
+        subscription_status: profile?.subscription_status || 'active',
       }
     });
   } catch {
