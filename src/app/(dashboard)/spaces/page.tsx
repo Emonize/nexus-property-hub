@@ -84,44 +84,50 @@ function SpaceFormModal({
       ? { street, city, state, zip, country: 'US' }
       : undefined;
 
-    if (mode === 'edit' && initialData) {
-      const result = await updateSpace(initialData.id, {
-        name: name.trim(),
-        type,
-        status,
-        area_sqft: areaSqft ? Number(areaSqft) : null,
-        base_rent: baseRent ? Number(baseRent) : null,
-        address: address || null,
-        amenities,
-      });
-      if (result.error) {
-        toast.error(result.error);
-        setSaving(false);
+    try {
+      if (mode === 'edit' && initialData) {
+        const result = await updateSpace(initialData.id, {
+          name: name.trim(),
+          type,
+          status,
+          area_sqft: areaSqft ? Number(areaSqft) : null,
+          base_rent: baseRent ? Number(baseRent) : null,
+          address: address || null,
+          amenities,
+        });
+        if (result.error) {
+          toast.error(result.error);
+          setSaving(false);
+        } else {
+          toast.success('Space updated successfully');
+          onSuccess();
+          onClose();
+        }
       } else {
-        toast.success('Space updated successfully');
-        onSuccess();
-        onClose();
+        const result = await createSpace({
+          name: name.trim(),
+          type,
+          parent_id: parentId,
+          address,
+          area_sqft: areaSqft ? Number(areaSqft) : undefined,
+          base_rent: baseRent ? Number(baseRent) : undefined,
+          amenities,
+          status,
+        });
+        console.log('[Spaces] createSpace result:', JSON.stringify(result));
+        if (result.error) {
+          toast.error(result.error);
+          setSaving(false);
+        } else {
+          toast.success('Space created successfully');
+          onSuccess();
+          onClose();
+        }
       }
-    } else {
-      const result = await createSpace({
-        name: name.trim(),
-        type,
-        parent_id: parentId,
-        address,
-        area_sqft: areaSqft ? Number(areaSqft) : undefined,
-        base_rent: baseRent ? Number(baseRent) : undefined,
-        amenities,
-        status,
-      });
-      console.log('[Spaces] createSpace result:', JSON.stringify(result));
-      if (result.error) {
-        toast.error(result.error);
-        setSaving(false);
-      } else {
-        toast.success('Space created successfully');
-        onSuccess();
-        onClose();
-      }
+    } catch (err: any) {
+      console.error('Unhandled exception in Space handleSubmit:', err);
+      toast.error(err.message || 'An unexpected error occurred');
+      setSaving(false);
     }
   };
 

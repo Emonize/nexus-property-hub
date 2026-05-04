@@ -92,36 +92,40 @@ function NewLeaseModal({
     if (!monthlyRent || Number(monthlyRent) <= 0) { toast.error('Please enter a valid monthly rent'); return; }
 
     // Resolve tenant ID
-    let tenantId = '';
-    if (tenants.length > 0 && tenantEmail) {
-      tenantId = tenantEmail;
-    } else {
-      toast.error('No tenants available. Please add tenants first.');
+    let tenantId = tenantEmail;
+    if (!tenantId) {
+      toast.error('Please specify a tenant');
       return;
     }
 
     setSaving(true);
 
-    const result = await createLease({
-      space_id: spaceId,
-      tenant_id: tenantId,
-      lease_type: leaseType,
-      start_date: startDate,
-      end_date: endDate || undefined,
-      monthly_rent: Number(monthlyRent),
-      deposit: deposit ? Number(deposit) : undefined,
-      payment_day: paymentDay ? Number(paymentDay) : undefined,
-      split_pct: splitPct ? Number(splitPct) : undefined,
-      auto_renew: autoRenew,
-    });
+    try {
+      const result = await createLease({
+        space_id: spaceId,
+        tenant_id: tenantId,
+        lease_type: leaseType,
+        start_date: startDate,
+        end_date: endDate || undefined,
+        monthly_rent: Number(monthlyRent),
+        deposit: deposit ? Number(deposit) : undefined,
+        payment_day: paymentDay ? Number(paymentDay) : undefined,
+        split_pct: splitPct ? Number(splitPct) : undefined,
+        auto_renew: autoRenew,
+      });
 
-    if (result.error) {
-      toast.error(result.error);
+      if (result.error) {
+        toast.error(result.error);
+        setSaving(false);
+      } else {
+        toast.success('Lease generated successfully');
+        onSuccess();
+        onClose();
+      }
+    } catch (err: any) {
+      console.error("Error creating lease:", err);
+      toast.error(err.message || 'An unexpected error occurred');
       setSaving(false);
-    } else {
-      toast.success('Lease generated successfully');
-      onSuccess();
-      onClose();
     }
   };
 
@@ -162,21 +166,18 @@ function NewLeaseModal({
             </div>
             <div>
               <label className="nexus-label">Tenant *</label>
-              {tenants.length > 0 ? (
-                <select className="nexus-select" value={tenantEmail} onChange={e => setTenantEmail(e.target.value)}>
-                  <option value="">Select a tenant...</option>
-                  {tenants.map(t => (
-                    <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  className="nexus-input"
-                  placeholder="Tenant email"
-                  value={tenantEmail}
-                  onChange={e => setTenantEmail(e.target.value)}
-                />
-              )}
+              <input
+                className="nexus-input"
+                placeholder="Tenant email"
+                value={tenantEmail}
+                onChange={e => setTenantEmail(e.target.value)}
+                list="tenant-options"
+              />
+              <datalist id="tenant-options">
+                {tenants.map(t => (
+                  <option key={t.id} value={t.email}>{t.name} ({t.email})</option>
+                ))}
+              </datalist>
             </div>
           </div>
 

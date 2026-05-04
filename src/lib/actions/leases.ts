@@ -5,10 +5,11 @@ import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/actions/auth';
 import type { Lease, LeaseType, LeaseStatus } from '@/types/database';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function createLease(formData: {
   space_id: string;
-  tenant_id: string;
+  tenant_id: string; // can be email or uuid
   lease_type?: LeaseType;
   start_date: string;
   end_date?: string;
@@ -21,6 +22,47 @@ export async function createLease(formData: {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
+
+  // Use service role key to bypass RLS for auth admin actions and user lookups
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  let resolvedTenantId = formData.tenant_id;
+  
+  if (resolvedTenantId.includes('@')) {
+    // Look up existing user by email using Admin client to bypass RLS
+    const { data: existingUser } = await supabaseAdmin.from('users').select('id').eq('email', resolvedTenantId).single();
+    if (existingUser) {
+      resolvedTenantId = existingUser.id;
+    } else {
+      // Need to invite the user
+      const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(resolvedTenantId);
+      if (inviteError) {
+        console.error("Failed to invite tenant:", inviteError);
+        return { error: 'Failed to invite tenant. Please ensure the email is valid.' };
+      }
+      resolvedTenantId = inviteData.user.id;
+      
+      // Poll until the database trigger creates the public.users record
+      let userCreated = false;
+      for (let i = 0; i < 20; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const { data } = await supabaseAdmin.from('users').select('id').eq('id', resolvedTenantId).single();
+        if (data) {
+          userCreated = true;
+          break;
+        }
+      }
+      if (!userCreated) {
+        return { error: 'Tenant account creation timed out. Please try again.' };
+      }
+      
+      // Update role to tenant
+      await supabaseAdmin.from('users').update({ role: 'tenant' }).eq('id', resolvedTenantId);
+    }
+  }
 
   // Check for existing leases on the same space to auto-create split groups
   const { data: existingLeases } = await supabase
@@ -56,8 +98,9 @@ export async function createLease(formData: {
   const { data, error } = await supabase
     .from('leases')
     .insert({
+      id: uuidv4(),
       space_id: formData.space_id,
-      tenant_id: formData.tenant_id,
+      tenant_id: resolvedTenantId,
       lease_type: formData.lease_type || 'fixed',
       start_date: formData.start_date,
       end_date: formData.end_date || null,
@@ -72,7 +115,10 @@ export async function createLease(formData: {
     .select()
     .single();
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error("Supabase insert error:", error);
+    return { error: error.message };
+  }
 
   // Update space status to occupied
   await supabase
@@ -82,6 +128,8 @@ export async function createLease(formData: {
 
   revalidatePath('/dashboard');
   revalidatePath('/leases');
+  revalidatePath('/spaces');
+  
   return { data: data as Lease };
 }
 

@@ -32,6 +32,19 @@ const severityColors: Record<string, string> = {
 export default function MaintenancePage() {
   const [showCreate, setShowCreate] = useState(false);
   const [tickets, setTickets] = useState<TicketRow[]>([]);
+  const [spaces, setSpaces] = useState<{id: string, name: string}[]>([]);
+  
+  // Form State
+  const [formSpaceId, setFormSpaceId] = useState('');
+  const [formTitle, setFormTitle] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchSpaces = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase.from('spaces').select('id, name');
+    if (data) setSpaces(data);
+  }, []);
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -59,6 +72,7 @@ export default function MaintenancePage() {
 
   useEffect(() => {
     fetchTickets();
+    fetchSpaces();
 
     const supabase = createClient();
     const channel = supabase
@@ -76,7 +90,31 @@ export default function MaintenancePage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchTickets]);
+  }, [fetchTickets, fetchSpaces]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formSpaceId || !formTitle) return;
+
+    setIsSubmitting(true);
+    try {
+      const { createMaintenanceTicket } = await import('@/lib/actions/maintenance');
+      await createMaintenanceTicket({
+        space_id: formSpaceId,
+        title: formTitle,
+        description: formDescription,
+      });
+      setShowCreate(false);
+      setFormTitle('');
+      setFormDescription('');
+      setFormSpaceId('');
+      fetchTickets();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div>
@@ -94,30 +132,37 @@ export default function MaintenancePage() {
 
       {/* Create Form */}
       {showCreate && (
-        <div className="glass-card fade-in" style={{ padding: 28, marginBottom: 24 }}>
+        <form onSubmit={handleSubmit} className="glass-card fade-in" style={{ padding: 28, marginBottom: 24 }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>File Maintenance Request</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label className="nexus-label">Space</label>
-              <select className="nexus-select"><option>Select a space...</option><option>Bedroom 1</option><option>Bedroom 2</option><option>Unit 2B</option></select>
+              <select className="nexus-select" value={formSpaceId} onChange={e => setFormSpaceId(e.target.value)} required>
+                <option value="">Select a space...</option>
+                {spaces.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="nexus-label">Title</label>
-              <input className="nexus-input" placeholder="Brief description" />
+              <input className="nexus-input" placeholder="Brief description" value={formTitle} onChange={e => setFormTitle(e.target.value)} required />
             </div>
           </div>
           <div style={{ marginTop: 16 }}>
             <label className="nexus-label">Description</label>
-            <textarea className="nexus-input" rows={3} placeholder="Describe the issue in detail..." style={{ resize: 'vertical' }} />
+            <textarea className="nexus-input" rows={3} placeholder="Describe the issue in detail..." style={{ resize: 'vertical' }} value={formDescription} onChange={e => setFormDescription(e.target.value)} />
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-            <button className="btn-secondary"><Camera size={14} /> Add Photo</button>
-            <button className="btn-secondary"><Mic size={14} /> Voice Note</button>
+            <button type="button" className="btn-secondary"><Camera size={14} /> Add Photo</button>
+            <button type="button" className="btn-secondary"><Mic size={14} /> Voice Note</button>
             <div style={{ flex: 1 }} />
-            <button className="btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
-            <button className="btn-primary">Submit &amp; Auto-Triage</button>
+            <button type="button" className="btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
+            <button type="submit" className="btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit & Auto-Triage'}
+            </button>
           </div>
-        </div>
+        </form>
       )}
 
       {/* Tickets */}
